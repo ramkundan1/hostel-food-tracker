@@ -1,0 +1,78 @@
+// use prisma-8
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  username     String?
+  name         String?
+  passwordHash String
+  emailVerified Boolean @default(false)
+  verificationToken String?
+  verificationTokenExpiresAt TimestamptzString?
+  resetToken String?
+  resetTokenExpiresAt TimestamptzString?
+  failedLoginAttempts Int @default(0)
+  lockedUntil TimestamptzString?
+  posts        Post[]
+  foodEntries  FoodEntry[]
+  createdAt    TimestamptzString @default(now())
+  updatedAt    temporal.updatedAtString()
+foodPrice FoodPrice?
+}
+
+model RateLimit {
+  id          Int    @id @default(autoincrement())
+  key         String @unique
+  count       Int    @default(0)
+  windowStart TimestamptzString
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+model FoodPrice {
+userId    Int     @unique
+user      User    @relation(fields: [userId], references: [id])
+  id        Int      @id @default(autoincrement())
+  meal      Float
+  egg       Float
+  curd      Float
+  chicken   Float
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+model FoodEntry {
+  id               Int      @id @default(autoincrement())
+userId           Int
+user             User     @relation(fields: [userId], references: [id])
+  date             TimestamptzString @default(now())
+  nepaliYear       Int
+  nepaliMonth      Int
+  nepaliDate       Int
+  mealType         String
+  meal             Boolean  @default(false)
+  egg              Boolean  @default(false)
+  curd             Boolean  @default(false)
+  chicken          Boolean  @default(false)
+  totalCost        Float    @default(0)
+  createdAt        TimestamptzString @default(now())
+  dayKey           String   @default("")
+  additionalPeople FoodEntryPerson[]
+}
+
+model FoodEntryPerson {
+  id          Int       @id @default(autoincrement())
+  foodEntry   FoodEntry @relation(fields: [foodEntryId], references: [id])
+  foodEntryId Int
+  meal        Boolean   @default(false)
+  egg         Boolean   @default(false)
+  curd        Boolean   @default(false)
+  chicken     Boolean   @default(false)
+  totalCost   Float    @default(0)
+}
