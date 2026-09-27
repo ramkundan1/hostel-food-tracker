@@ -216,14 +216,6 @@ const router = useRouter();
         return;
       }
 
-      const groupRes = await fetch("/api/groups/me");
-      const groupData = await groupRes.json();
-
-      if (!groupData.group) {
-        router.push("/group-setup");
-        return;
-      }
-
       const priceRes = await fetch("/api/food-price");
       const priceData = await priceRes.json();
 

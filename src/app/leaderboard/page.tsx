@@ -80,12 +80,7 @@ export default function LeaderboardPage() {
       const groupRes = await fetch("/api/groups/me");
       const groupData = await groupRes.json();
 
-      if (!groupData.group) {
-        router.push("/group-setup");
-        return;
-      }
-
-      setGroup(groupData.group);
+      setGroup(groupData.group ?? null);
 
       const statsRes = await fetch("/api/stats");
       const statsData = await statsRes.json();
@@ -99,6 +94,8 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     async function loadLeaderboard() {
+      if (!group) return;
+
       const res = await fetch(
         `/api/leaderboard?year=${viewYear}&month=${viewMonth}`
       );
@@ -107,7 +104,7 @@ export default function LeaderboardPage() {
     }
 
     loadLeaderboard();
-  }, [viewYear, viewMonth]);
+  }, [viewYear, viewMonth, group]);
 
   function changeMonth(delta: number) {
     let newMonth = viewMonth + delta;
@@ -151,6 +148,29 @@ export default function LeaderboardPage() {
     }
   }
 
+  async function deleteAccount() {
+    const confirmed = window.confirm(
+      "Delete your account permanently? This removes all your meal entries, prices, and group membership. This can't be undone."
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirmed = window.confirm(
+      "Really sure? There's no way to recover this once it's done."
+    );
+
+    if (!doubleConfirmed) return;
+
+    const res = await fetch("/api/auth/delete-account", { method: "POST" });
+
+    if (!res.ok) {
+      alert("Something went wrong deleting your account. Try again.");
+      return;
+    }
+
+    router.push("/login");
+  }
+
   if (loading || !stats) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
@@ -181,7 +201,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Group */}
-        {group && (
+        {group ? (
           <section className="mt-6 flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <div>
               <p className="text-xs text-slate-500">Your group</p>
@@ -197,6 +217,22 @@ export default function LeaderboardPage() {
                 {group.inviteCode}
               </p>
             </div>
+          </section>
+        ) : (
+          <section className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-4">
+            <div>
+              <p className="font-semibold">No group yet</p>
+              <p className="text-xs text-slate-500">
+                Join or create one to compare spend with your roommates.
+              </p>
+            </div>
+
+            <button
+              onClick={() => router.push("/group-setup")}
+              className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-2 text-sm font-bold text-slate-950"
+            >
+              Join / Create
+            </button>
           </section>
         )}
 
@@ -236,6 +272,7 @@ export default function LeaderboardPage() {
         </section>
 
         {/* Leaderboard */}
+        {group && (
         <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl font-bold">
@@ -304,12 +341,20 @@ export default function LeaderboardPage() {
             ))}
           </div>
         </section>
+        )}
 
         <button
           onClick={copyRecap}
           className="mt-6 w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-3 font-bold text-slate-950 transition hover:scale-[1.01] active:scale-[0.98]"
         >
           {copied ? "Copied! Paste it anywhere 🎉" : "📋 Copy Shareable Recap"}
+        </button>
+
+        <button
+          onClick={deleteAccount}
+          className="mt-4 w-full rounded-full border border-red-900 bg-red-950/30 px-5 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-950/50"
+        >
+          Delete Account
         </button>
       </div>
     </main>
