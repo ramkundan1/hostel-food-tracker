@@ -36,3 +36,24 @@ body {
 .animate-pop-in {
   animation: popIn 220ms ease-out both;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body,
+  main {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Dark cards/borders read poorly on paper — force a clean light look
+     for anything printed, regardless of its normal dark-theme classes. */
+  * {
+    background-color: white !important;
+    color: black !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: none !important;
+  }
+}

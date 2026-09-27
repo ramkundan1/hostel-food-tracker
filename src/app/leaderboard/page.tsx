@@ -58,6 +58,11 @@ export default function LeaderboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [copied, setCopied] = useState(false);
+  const [group, setGroup] = useState<{
+    name: string;
+    inviteCode: string;
+    memberCount: number;
+  } | null>(null);
 
   const todayNepali = useMemo(() => new nepaliDateConverter(), []);
   const [viewYear, setViewYear] = useState(todayNepali.getYear());
@@ -71,6 +76,16 @@ export default function LeaderboardPage() {
         router.push("/login");
         return;
       }
+
+      const groupRes = await fetch("/api/groups/me");
+      const groupData = await groupRes.json();
+
+      if (!groupData.group) {
+        router.push("/group-setup");
+        return;
+      }
+
+      setGroup(groupData.group);
 
       const statsRes = await fetch("/api/stats");
       const statsData = await statsRes.json();
@@ -164,6 +179,26 @@ export default function LeaderboardPage() {
             ← Back
           </button>
         </div>
+
+        {/* Group */}
+        {group && (
+          <section className="mt-6 flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div>
+              <p className="text-xs text-slate-500">Your group</p>
+              <p className="font-bold">
+                {group.name} · {group.memberCount} member
+                {group.memberCount === 1 ? "" : "s"}
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-xs text-slate-500">Invite code</p>
+              <p className="font-mono font-bold tracking-widest text-amber-400">
+                {group.inviteCode}
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Streak */}
         <section className="mt-6 rounded-3xl border border-slate-800 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 text-center">

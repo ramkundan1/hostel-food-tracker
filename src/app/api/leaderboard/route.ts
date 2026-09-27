@@ -32,12 +32,29 @@ export async function GET(request: Request) {
     );
   }
 
-  // Deliberately not scoped to the current user — a leaderboard is
-  // inherently cross-user. Only aggregate totals are exposed (spend,
-  // entry count), never other users' individual meal details.
-  const entries = await db.orm.public.FoodEntry
+  // Leaderboards are scoped to the user's own group — never all
+  // registered users app-wide, since unrelated households shouldn't see
+  // each other's spend data.
+  const membership = await db.orm.public.GroupMember.where({ userId }).first();
+
+  if (!membership) {
+    return Response.json(
+      { error: "Join or create a group first." },
+      { status: 400 }
+    );
+  }
+
+  const groupMembers = await db.orm.public.GroupMember
+    .where({ groupId: membership.groupId })
+    .all();
+
+  const memberIds = new Set(groupMembers.map((m) => m.userId));
+
+  const allEntries = await db.orm.public.FoodEntry
     .where({ nepaliYear, nepaliMonth })
     .all();
+
+  const entries = allEntries.filter((entry) => memberIds.has(entry.userId));
 
   const totalsByUser = new Map<
     number,

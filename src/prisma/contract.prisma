@@ -27,6 +27,23 @@ model RateLimit {
   windowStart TimestamptzString
 }
 
+model Group {
+  id         Int      @id @default(autoincrement())
+  name       String
+  inviteCode String   @unique
+  createdBy  Int
+  createdAt  TimestamptzString @default(now())
+  members    GroupMember[]
+}
+
+model GroupMember {
+  id       Int    @id @default(autoincrement())
+  group    Group  @relation(fields: [groupId], references: [id])
+  groupId  Int
+  userId   Int
+  joinedAt TimestamptzString @default(now())
+}
+
 model Post {
   id        Int      @id @default(autoincrement())
   title     String

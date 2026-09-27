@@ -215,6 +215,15 @@ const router = useRouter();
         router.push("/login");
         return;
       }
+
+      const groupRes = await fetch("/api/groups/me");
+      const groupData = await groupRes.json();
+
+      if (!groupData.group) {
+        router.push("/group-setup");
+        return;
+      }
+
       const priceRes = await fetch("/api/food-price");
       const priceData = await priceRes.json();
 
@@ -1248,6 +1257,42 @@ function MonthlyReport({
       .sort((a, b) => b.day - a.day);
   }, [report.entries]);
 
+  function exportCsv() {
+    const header = [
+      "Date",
+      "Meal Type",
+      "Normal Meal",
+      "Egg",
+      "Curd",
+      "Chicken",
+      "Additional People",
+      "Total Cost (Rs.)",
+    ];
+
+    const rows = report.entries.map((entry) => [
+      formatNepaliDate(entry.nepaliYear, entry.nepaliMonth, entry.nepaliDate),
+      entry.mealType,
+      entry.meal ? "Yes" : "No",
+      entry.egg ? "Yes" : "No",
+      entry.curd ? "Yes" : "No",
+      entry.chicken ? "Yes" : "No",
+      String(entry.additionalPeople.length),
+      entry.totalCost.toFixed(2),
+    ]);
+
+    const csv = [header, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `hostel-food-tracker-${formatNepaliMonth(report.nepaliYear, report.nepaliMonth).replace(" ", "-")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 p-4 text-white sm:p-6">
       <div className="mx-auto max-w-4xl">
@@ -1264,13 +1309,13 @@ function MonthlyReport({
 
           <button
             onClick={onBack}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
+            className="no-print rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
           >
             ← Back
           </button>
         </div>
 
-        <div className="mt-7 grid gap-3">
+        <div className="no-print mt-7 grid gap-3">
           {months.map((month) => (
             <button
               key={month.nepaliYear + "-" + month.nepaliMonth}
@@ -1333,8 +1378,25 @@ function MonthlyReport({
           />
         </div>
 
-        <section className="mt-7">
-          <h2 className="font-display text-xl font-bold">🧾 Meal Records</h2>
+        <section className="mt-7 no-print">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold">🧾 Meal Records</h2>
+
+            <div className="flex gap-2">
+              <button
+                onClick={exportCsv}
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold hover:bg-slate-800"
+              >
+                ⬇️ CSV
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold hover:bg-slate-800"
+              >
+                🖨️ Print / PDF
+              </button>
+            </div>
+          </div>
 
           <div className="mt-4 space-y-3">
             {entriesByDay.map(({ day, entries, total }) => {
