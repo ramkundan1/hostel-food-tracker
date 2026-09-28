@@ -84,12 +84,24 @@ user             User     @relation(fields: [userId], references: [id])
 }
 
 model FoodEntryPerson {
-  id          Int       @id @default(autoincrement())
-  foodEntry   FoodEntry @relation(fields: [foodEntryId], references: [id])
-  foodEntryId Int
-  meal        Boolean   @default(false)
-  egg         Boolean   @default(false)
-  curd        Boolean   @default(false)
-  chicken     Boolean   @default(false)
-  totalCost   Float    @default(0)
+  id           Int       @id @default(autoincrement())
+  foodEntry    FoodEntry @relation(fields: [foodEntryId], references: [id])
+  foodEntryId  Int
+  meal         Boolean   @default(false)
+  egg          Boolean   @default(false)
+  curd         Boolean   @default(false)
+  chicken      Boolean   @default(false)
+  totalCost    Float    @default(0)
+  memberUserId Int?
+}
+
+model Settlement {
+  id          Int    @id @default(autoincrement())
+  groupId     Int
+  fromUserId  Int
+  toUserId    Int
+  nepaliYear  Int
+  nepaliMonth Int
+  amount      Float
+  settledAt   TimestamptzString @default(now())
 }

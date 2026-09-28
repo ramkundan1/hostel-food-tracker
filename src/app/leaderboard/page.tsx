@@ -48,6 +48,14 @@ type LeaderboardRow = {
   entryCount: number;
 };
 
+type Debt = {
+  fromUserId: number;
+  fromName: string;
+  toUserId: number;
+  toName: string;
+  amount: number;
+};
+
 const medalFor = (rank: number) =>
   rank === 0 ? "🥇" : rank === 1 ? "🥈" : rank === 2 ? "🥉" : `#${rank + 1}`;
 
@@ -57,6 +65,9 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats | null>(null);
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [myUserId, setMyUserId] = useState<number | null>(null);
+  const [settling, setSettling] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [group, setGroup] = useState<{
     name: string;
@@ -76,6 +87,9 @@ export default function LeaderboardPage() {
         router.push("/login");
         return;
       }
+
+      const authData = await authRes.json();
+      setMyUserId(authData.userId);
 
       const groupRes = await fetch("/api/groups/me");
       const groupData = await groupRes.json();
@@ -101,10 +115,51 @@ export default function LeaderboardPage() {
       );
       const data = await res.json();
       setRows(data.rows ?? []);
+
+      const settleRes = await fetch(
+        `/api/settle-up?year=${viewYear}&month=${viewMonth}`
+      );
+      const settleData = await settleRes.json();
+      setDebts(settleData.debts ?? []);
     }
 
     loadLeaderboard();
   }, [viewYear, viewMonth, group]);
+
+  async function markSettled(debt: Debt) {
+    const confirmed = window.confirm(
+      `Mark this as settled? ${debt.fromName} paid ${debt.toName} Rs. ${debt.amount.toFixed(2)}.`
+    );
+
+    if (!confirmed) return;
+
+    setSettling(debt.toUserId);
+
+    const res = await fetch("/api/settle-up/mark", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        toUserId: debt.toUserId,
+        amount: debt.amount,
+        nepaliYear: viewYear,
+        nepaliMonth: viewMonth,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error ?? "Couldn't mark this as settled.");
+      setSettling(null);
+      return;
+    }
+
+    const settleRes = await fetch(
+      `/api/settle-up?year=${viewYear}&month=${viewMonth}`
+    );
+    const settleData = await settleRes.json();
+    setDebts(settleData.debts ?? []);
+    setSettling(null);
+  }
 
   function changeMonth(delta: number) {
     let newMonth = viewMonth + delta;
@@ -339,6 +394,55 @@ export default function LeaderboardPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+        )}
+
+        {group && debts.length > 0 && (
+        <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
+          <h2 className="font-display text-xl font-bold">🤝 Settle Up</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Based on who covered extra portions for whom this month.
+          </p>
+
+          <div className="mt-4 space-y-2">
+            {debts.map((debt) => {
+              const involvesMe =
+                debt.fromUserId === myUserId || debt.toUserId === myUserId;
+
+              const label =
+                debt.fromUserId === myUserId
+                  ? `You owe ${debt.toName}`
+                  : debt.toUserId === myUserId
+                    ? `${debt.fromName} owes you`
+                    : `${debt.fromName} owes ${debt.toName}`;
+
+              return (
+                <div
+                  key={`${debt.fromUserId}-${debt.toUserId}`}
+                  className={`flex items-center justify-between rounded-xl border p-3 ${
+                    involvesMe
+                      ? "border-amber-800 bg-amber-950/20"
+                      : "border-slate-800 bg-slate-950"
+                  }`}
+                >
+                  <div>
+                    <p className="font-semibold">{label}</p>
+                    <p className="text-xs text-slate-500">
+                      Rs. {debt.amount.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => markSettled(debt)}
+                    disabled={settling === debt.toUserId}
+                    className="rounded-full border border-emerald-700 bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-300 disabled:opacity-50"
+                  >
+                    {settling === debt.toUserId ? "..." : "Mark settled"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </section>
         )}
