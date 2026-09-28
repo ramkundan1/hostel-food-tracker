@@ -15,14 +15,13 @@ export default function ProfileSetupPage() {
 
   useEffect(() => {
     async function load() {
-      const authRes = await fetch("/api/auth/me");
+      const res = await fetch("/api/profile");
 
-      if (!authRes.ok) {
+      if (res.status === 401) {
         router.push("/login");
         return;
       }
 
-      const res = await fetch("/api/profile");
       const data = await res.json();
 
       setName(data.name ?? "");

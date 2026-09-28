@@ -29,8 +29,8 @@ export async function GET(request: Request) {
   if (
     !Number.isInteger(nepaliYear) ||
     !Number.isInteger(nepaliMonth) ||
-    nepaliMonth < 1 ||
-    nepaliMonth > 12
+    nepaliMonth < 0 ||
+    nepaliMonth > 11
   ) {
     return Response.json(
       { error: "Invalid Nepali year or month" },
@@ -60,12 +60,16 @@ export async function GET(request: Request) {
     entries: responseEntries,
   };
 
-  for (const entry of entries) {
-    const additionalPeople = await db.orm.public.FoodEntryPerson
-      .where({
-        foodEntryId: entry.id,
-      })
-      .all();
+  // Fetch every entry's extra people at the same time instead of one by one.
+  const peopleLists = await Promise.all(
+    entries.map((entry) =>
+      db.orm.public.FoodEntryPerson.where({ foodEntryId: entry.id }).all()
+    )
+  );
+
+  for (let index = 0; index < entries.length; index++) {
+    const entry = entries[index];
+    const additionalPeople = peopleLists[index];
 
     summary.totalExpense += entry.totalCost;
 

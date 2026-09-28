@@ -212,16 +212,18 @@ userId,
     dayKey,
   });
 
-  for (const person of additionalPeople) {
-    await db.orm.public.FoodEntryPerson.create({
-      foodEntryId: entry.id,
-      meal: Boolean(person.meal),
-      egg: Boolean(person.egg),
-      curd: Boolean(person.curd),
-      chicken: Boolean(person.chicken),
-      totalCost: getPersonCost(person, foodPrice),
-    });
-  }
+  await Promise.all(
+    additionalPeople.map((person) =>
+      db.orm.public.FoodEntryPerson.create({
+        foodEntryId: entry.id,
+        meal: Boolean(person.meal),
+        egg: Boolean(person.egg),
+        curd: Boolean(person.curd),
+        chicken: Boolean(person.chicken),
+        totalCost: getPersonCost(person, foodPrice),
+      })
+    )
+  );
 
   return Response.json(entry);
 }
@@ -430,16 +432,18 @@ export async function PUT(request: Request) {
     .where({ foodEntryId: id })
     .deleteAll();
 
-  for (const person of additionalPeople) {
-    await db.orm.public.FoodEntryPerson.create({
-      foodEntryId: id,
-      meal: Boolean(person.meal),
-      egg: Boolean(person.egg),
-      curd: Boolean(person.curd),
-      chicken: Boolean(person.chicken),
-      totalCost: getPersonCost(person, foodPrice),
-    });
-  }
+  await Promise.all(
+    additionalPeople.map((person) =>
+      db.orm.public.FoodEntryPerson.create({
+        foodEntryId: id,
+        meal: Boolean(person.meal),
+        egg: Boolean(person.egg),
+        curd: Boolean(person.curd),
+        chicken: Boolean(person.chicken),
+        totalCost: getPersonCost(person, foodPrice),
+      })
+    )
+  );
 
   return Response.json(updated);
 }

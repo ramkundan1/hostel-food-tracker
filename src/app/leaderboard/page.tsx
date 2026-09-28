@@ -45,17 +45,15 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     async function load() {
-      const authRes = await fetch("/api/auth/me");
-
-      if (!authRes.ok) {
-        router.push("/login");
-        return;
-      }
-
       const [statsRes, boardRes] = await Promise.all([
         fetch("/api/stats"),
         fetch("/api/leaderboard"),
       ]);
+
+      if (statsRes.status === 401 || boardRes.status === 401) {
+        router.push("/login");
+        return;
+      }
 
       setStats(await statsRes.json());
 

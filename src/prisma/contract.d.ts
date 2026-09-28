@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6b3a869babb05b5020e4c869803d9390c69f8b2bce5e8424bd448838bf3bc2bb'>;
+  StorageHashBase<'f66b0226df300e2d2bd51f87487d43671b4c17fc71fc2ec9ccf36b83f0314b1f'>;
 export type ExecutionHash =
   ExecutionHashBase<'9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24'>;
 export type ProfileHash =
@@ -266,7 +266,6 @@ export type FieldOutputTypes = {
       readonly curd: CodecTypes['pg/bool@1']['output'];
       readonly chicken: CodecTypes['pg/bool@1']['output'];
       readonly totalCost: CodecTypes['pg/float8@1']['output'];
-      readonly memberUserId: CodecTypes['pg/int4@1']['output'] | null;
     };
     readonly FoodPrice: {
       readonly userId: CodecTypes['pg/int4@1']['output'];
@@ -278,19 +277,6 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly Group: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly name: CodecTypes['pg/text@1']['output'];
-      readonly inviteCode: CodecTypes['pg/text@1']['output'];
-      readonly createdBy: CodecTypes['pg/int4@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly GroupMember: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly groupId: CodecTypes['pg/int4@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
-      readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly Post: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly title: CodecTypes['pg/text@1']['output'];
@@ -299,36 +285,12 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly RateLimit: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly key: CodecTypes['pg/text@1']['output'];
-      readonly count: CodecTypes['pg/int4@1']['output'];
-      readonly windowStart: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly Settlement: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly groupId: CodecTypes['pg/int4@1']['output'];
-      readonly fromUserId: CodecTypes['pg/int4@1']['output'];
-      readonly toUserId: CodecTypes['pg/int4@1']['output'];
-      readonly nepaliYear: CodecTypes['pg/int4@1']['output'];
-      readonly nepaliMonth: CodecTypes['pg/int4@1']['output'];
-      readonly amount: CodecTypes['pg/float8@1']['output'];
-      readonly settledAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'] | null;
       readonly name: CodecTypes['pg/text@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
-      readonly emailVerified: CodecTypes['pg/bool@1']['output'];
-      readonly verificationToken: CodecTypes['pg/text@1']['output'] | null;
-      readonly verificationTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
-      readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
-      readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-      readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -360,7 +322,6 @@ export type FieldInputTypes = {
       readonly curd: CodecTypes['pg/bool@1']['input'];
       readonly chicken: CodecTypes['pg/bool@1']['input'];
       readonly totalCost: CodecTypes['pg/float8@1']['input'];
-      readonly memberUserId: CodecTypes['pg/int4@1']['input'] | null;
     };
     readonly FoodPrice: {
       readonly userId: CodecTypes['pg/int4@1']['input'];
@@ -372,19 +333,6 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly Group: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly name: CodecTypes['pg/text@1']['input'];
-      readonly inviteCode: CodecTypes['pg/text@1']['input'];
-      readonly createdBy: CodecTypes['pg/int4@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly GroupMember: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly groupId: CodecTypes['pg/int4@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
-      readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
     readonly Post: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly title: CodecTypes['pg/text@1']['input'];
@@ -393,36 +341,12 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly RateLimit: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly key: CodecTypes['pg/text@1']['input'];
-      readonly count: CodecTypes['pg/int4@1']['input'];
-      readonly windowStart: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly Settlement: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly groupId: CodecTypes['pg/int4@1']['input'];
-      readonly fromUserId: CodecTypes['pg/int4@1']['input'];
-      readonly toUserId: CodecTypes['pg/int4@1']['input'];
-      readonly nepaliYear: CodecTypes['pg/int4@1']['input'];
-      readonly nepaliMonth: CodecTypes['pg/int4@1']['input'];
-      readonly amount: CodecTypes['pg/float8@1']['input'];
-      readonly settledAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'] | null;
       readonly name: CodecTypes['pg/text@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
-      readonly emailVerified: CodecTypes['pg/bool@1']['input'];
-      readonly verificationToken: CodecTypes['pg/text@1']['input'] | null;
-      readonly verificationTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
-      readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly failedLoginAttempts: CodecTypes['pg/int4@1']['input'];
-      readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
-      readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -453,7 +377,6 @@ export type StorageColumnTypes = {
       readonly foodEntryId: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly meal: CodecTypes['pg/bool@1']['output'];
-      readonly memberUserId: CodecTypes['pg/int4@1']['output'] | null;
       readonly totalCost: CodecTypes['pg/float8@1']['output'];
     };
     readonly foodPrice: {
@@ -466,19 +389,6 @@ export type StorageColumnTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
-    readonly group: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly createdBy: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly inviteCode: CodecTypes['pg/text@1']['output'];
-      readonly name: CodecTypes['pg/text@1']['output'];
-    };
-    readonly groupMember: {
-      readonly groupId: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly post: {
       readonly authorId: CodecTypes['pg/int4@1']['output'];
       readonly content: CodecTypes['pg/text@1']['output'] | null;
@@ -487,38 +397,14 @@ export type StorageColumnTypes = {
       readonly title: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly rateLimit: {
-      readonly count: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly key: CodecTypes['pg/text@1']['output'];
-      readonly windowStart: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
-    readonly settlement: {
-      readonly amount: CodecTypes['pg/float8@1']['output'];
-      readonly fromUserId: CodecTypes['pg/int4@1']['output'];
-      readonly groupId: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly nepaliMonth: CodecTypes['pg/int4@1']['output'];
-      readonly nepaliYear: CodecTypes['pg/int4@1']['output'];
-      readonly settledAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly toUserId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly user: {
-      readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
-      readonly emailVerified: CodecTypes['pg/bool@1']['output'];
-      readonly failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly name: CodecTypes['pg/text@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
-      readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
-      readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'] | null;
-      readonly verificationToken: CodecTypes['pg/text@1']['output'] | null;
-      readonly verificationTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     };
   };
 };
@@ -547,7 +433,6 @@ export type StorageColumnInputTypes = {
       readonly foodEntryId: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly meal: CodecTypes['pg/bool@1']['input'];
-      readonly memberUserId: CodecTypes['pg/int4@1']['input'] | null;
       readonly totalCost: CodecTypes['pg/float8@1']['input'];
     };
     readonly foodPrice: {
@@ -560,19 +445,6 @@ export type StorageColumnInputTypes = {
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
-    readonly group: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly createdBy: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly inviteCode: CodecTypes['pg/text@1']['input'];
-      readonly name: CodecTypes['pg/text@1']['input'];
-    };
-    readonly groupMember: {
-      readonly groupId: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly joinedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
-    };
     readonly post: {
       readonly authorId: CodecTypes['pg/int4@1']['input'];
       readonly content: CodecTypes['pg/text@1']['input'] | null;
@@ -581,38 +453,14 @@ export type StorageColumnInputTypes = {
       readonly title: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
-    readonly rateLimit: {
-      readonly count: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly key: CodecTypes['pg/text@1']['input'];
-      readonly windowStart: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly settlement: {
-      readonly amount: CodecTypes['pg/float8@1']['input'];
-      readonly fromUserId: CodecTypes['pg/int4@1']['input'];
-      readonly groupId: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly nepaliMonth: CodecTypes['pg/int4@1']['input'];
-      readonly nepaliYear: CodecTypes['pg/int4@1']['input'];
-      readonly settledAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly toUserId: CodecTypes['pg/int4@1']['input'];
-    };
     readonly user: {
-      readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
-      readonly emailVerified: CodecTypes['pg/bool@1']['input'];
-      readonly failedLoginAttempts: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly name: CodecTypes['pg/text@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
-      readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
-      readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'] | null;
-      readonly verificationToken: CodecTypes['pg/text@1']['input'] | null;
-      readonly verificationTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
     };
   };
 };
@@ -624,44 +472,12 @@ export namespace Models {
     username: CodecTypes['pg/text@1']['output'] | null;
     name: CodecTypes['pg/text@1']['output'] | null;
     passwordHash: CodecTypes['pg/text@1']['output'];
-    emailVerified: CodecTypes['pg/bool@1']['output'];
-    verificationToken: CodecTypes['pg/text@1']['output'] | null;
-    verificationTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-    resetToken: CodecTypes['pg/text@1']['output'] | null;
-    resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-    failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
-    lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
-    age: CodecTypes['pg/int4@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     foodEntries: public_FoodEntry[];
     foodPrice: public_FoodPrice | null;
     posts: public_Post[];
     readonly [RelationKeys]?: 'foodEntries' | 'foodPrice' | 'posts';
-  };
-  export type public_RateLimit = {
-    id: CodecTypes['pg/int4@1']['output'];
-    key: CodecTypes['pg/text@1']['output'];
-    count: CodecTypes['pg/int4@1']['output'];
-    windowStart: CodecTypes['pg/timestamptz-string@1']['output'];
-    readonly [RelationKeys]?: never;
-  };
-  export type public_Group = {
-    id: CodecTypes['pg/int4@1']['output'];
-    name: CodecTypes['pg/text@1']['output'];
-    inviteCode: CodecTypes['pg/text@1']['output'];
-    createdBy: CodecTypes['pg/int4@1']['output'];
-    createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    members: public_GroupMember[];
-    readonly [RelationKeys]?: 'members';
-  };
-  export type public_GroupMember = {
-    id: CodecTypes['pg/int4@1']['output'];
-    groupId: CodecTypes['pg/int4@1']['output'];
-    userId: CodecTypes['pg/int4@1']['output'];
-    joinedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    group: public_Group;
-    readonly [RelationKeys]?: 'group';
   };
   export type public_Post = {
     id: CodecTypes['pg/int4@1']['output'];
@@ -712,34 +528,18 @@ export namespace Models {
     curd: CodecTypes['pg/bool@1']['output'];
     chicken: CodecTypes['pg/bool@1']['output'];
     totalCost: CodecTypes['pg/float8@1']['output'];
-    memberUserId: CodecTypes['pg/int4@1']['output'] | null;
     foodEntry: public_FoodEntry;
     readonly [RelationKeys]?: 'foodEntry';
-  };
-  export type public_Settlement = {
-    id: CodecTypes['pg/int4@1']['output'];
-    groupId: CodecTypes['pg/int4@1']['output'];
-    fromUserId: CodecTypes['pg/int4@1']['output'];
-    toUserId: CodecTypes['pg/int4@1']['output'];
-    nepaliYear: CodecTypes['pg/int4@1']['output'];
-    nepaliMonth: CodecTypes['pg/int4@1']['output'];
-    amount: CodecTypes['pg/float8@1']['output'];
-    settledAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    readonly [RelationKeys]?: never;
   };
 }
 
 export declare const models: {
   public: {
     User: Models.public_User;
-    RateLimit: Models.public_RateLimit;
-    Group: Models.public_Group;
-    GroupMember: Models.public_GroupMember;
     Post: Models.public_Post;
     FoodPrice: Models.public_FoodPrice;
     FoodEntry: Models.public_FoodEntry;
     FoodEntryPerson: Models.public_FoodEntryPerson;
-    Settlement: Models.public_Settlement;
   };
 };
 
@@ -950,11 +750,6 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/float8@1', 0>;
                   };
                 };
-                readonly memberUserId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
@@ -1047,97 +842,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly group: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly name: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly inviteCode: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly createdBy: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['inviteCode'] }];
-              indexes: readonly [];
-              foreignKeys: readonly [];
-            };
-            readonly groupMember: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly groupId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly userId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly joinedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'groupMember_groupId_idx_e2fb5578';
-                  readonly prefix: 'groupMember_groupId_idx';
-                  readonly columns: readonly ['groupId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'groupMember';
-                    readonly columns: readonly ['groupId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'group';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly post: {
               columns: {
                 readonly id: {
@@ -1201,95 +905,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly rateLimit: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly key: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly count: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
-                  };
-                };
-                readonly windowStart: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['key'] }];
-              indexes: readonly [];
-              foreignKeys: readonly [];
-            };
-            readonly settlement: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly groupId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly fromUserId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly toUserId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly nepaliYear: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly nepaliMonth: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly amount: {
-                  readonly nativeType: 'float8';
-                  readonly codecId: 'pg/float8@1';
-                  readonly nullable: false;
-                };
-                readonly settledAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [];
-              foreignKeys: readonly [];
-            };
             readonly user: {
               columns: {
                 readonly id: {
@@ -1321,54 +936,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
-                readonly emailVerified: {
-                  readonly nativeType: 'bool';
-                  readonly codecId: 'pg/bool@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
-                  };
-                };
-                readonly verificationToken: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly verificationTokenExpiresAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                };
-                readonly resetToken: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly resetTokenExpiresAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                };
-                readonly failedLoginAttempts: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
-                  };
-                };
-                readonly lockedUntil: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: true;
-                };
-                readonly age: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -1398,22 +965,12 @@ type ContractBase = Omit<
   readonly targetFamily: 'sql';
   readonly roots: {
     readonly user: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-    readonly rateLimit: { readonly namespace: 'public' & NamespaceId; readonly model: 'RateLimit' };
-    readonly group: { readonly namespace: 'public' & NamespaceId; readonly model: 'Group' };
-    readonly groupMember: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'GroupMember';
-    };
     readonly post: { readonly namespace: 'public' & NamespaceId; readonly model: 'Post' };
     readonly foodPrice: { readonly namespace: 'public' & NamespaceId; readonly model: 'FoodPrice' };
     readonly foodEntry: { readonly namespace: 'public' & NamespaceId; readonly model: 'FoodEntry' };
     readonly foodEntryPerson: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'FoodEntryPerson';
-    };
-    readonly settlement: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'Settlement';
     };
   };
   readonly domain: {
@@ -1558,10 +1115,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
               };
-              readonly memberUserId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
             };
             readonly relations: {
               readonly foodEntry: {
@@ -1588,7 +1141,6 @@ type ContractBase = Omit<
                 readonly curd: { readonly column: 'curd' };
                 readonly chicken: { readonly column: 'chicken' };
                 readonly totalCost: { readonly column: 'totalCost' };
-                readonly memberUserId: { readonly column: 'memberUserId' };
               };
             };
           };
@@ -1659,104 +1211,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly Group: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly name: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly inviteCode: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdBy: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly members: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'GroupMember';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['groupId'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'group';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly name: { readonly column: 'name' };
-                readonly inviteCode: { readonly column: 'inviteCode' };
-                readonly createdBy: { readonly column: 'createdBy' };
-                readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
-          readonly GroupMember: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly groupId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly joinedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly group: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Group';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['groupId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'groupMember';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly groupId: { readonly column: 'groupId' };
-                readonly userId: { readonly column: 'userId' };
-                readonly joinedAt: { readonly column: 'joinedAt' };
-              };
-            };
-          };
           readonly Post: {
             readonly fields: {
               readonly id: {
@@ -1814,94 +1268,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly RateLimit: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly key: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly count: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly windowStart: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: Record<string, never>;
-            readonly storage: {
-              readonly table: 'rateLimit';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly key: { readonly column: 'key' };
-                readonly count: { readonly column: 'count' };
-                readonly windowStart: { readonly column: 'windowStart' };
-              };
-            };
-          };
-          readonly Settlement: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly groupId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly fromUserId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly toUserId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly nepaliYear: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly nepaliMonth: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly amount: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
-              };
-              readonly settledAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: Record<string, never>;
-            readonly storage: {
-              readonly table: 'settlement';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly groupId: { readonly column: 'groupId' };
-                readonly fromUserId: { readonly column: 'fromUserId' };
-                readonly toUserId: { readonly column: 'toUserId' };
-                readonly nepaliYear: { readonly column: 'nepaliYear' };
-                readonly nepaliMonth: { readonly column: 'nepaliMonth' };
-                readonly amount: { readonly column: 'amount' };
-                readonly settledAt: { readonly column: 'settledAt' };
-              };
-            };
-          };
           readonly User: {
             readonly fields: {
               readonly id: {
@@ -1923,47 +1289,6 @@ type ContractBase = Omit<
               readonly passwordHash: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly emailVerified: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
-              };
-              readonly verificationToken: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly verificationTokenExpiresAt: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly resetToken: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly resetTokenExpiresAt: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly failedLoginAttempts: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly lockedUntil: {
-                readonly nullable: true;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly age: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly createdAt: {
                 readonly nullable: false;
@@ -2022,16 +1347,6 @@ type ContractBase = Omit<
                 readonly username: { readonly column: 'username' };
                 readonly name: { readonly column: 'name' };
                 readonly passwordHash: { readonly column: 'passwordHash' };
-                readonly emailVerified: { readonly column: 'emailVerified' };
-                readonly verificationToken: { readonly column: 'verificationToken' };
-                readonly verificationTokenExpiresAt: {
-                  readonly column: 'verificationTokenExpiresAt';
-                };
-                readonly resetToken: { readonly column: 'resetToken' };
-                readonly resetTokenExpiresAt: { readonly column: 'resetTokenExpiresAt' };
-                readonly failedLoginAttempts: { readonly column: 'failedLoginAttempts' };
-                readonly lockedUntil: { readonly column: 'lockedUntil' };
-                readonly age: { readonly column: 'age' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

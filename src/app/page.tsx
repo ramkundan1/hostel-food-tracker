@@ -210,14 +210,23 @@ const router = useRouter();
 
   useEffect(() => {
     async function loadData() {
-      const authRes = await fetch("/api/auth/me");
+      // Ask for everything at once. Waiting for each answer before asking
+      // for the next one meant five round trips to the server in a row.
+      const [profileRes, priceRes, summaryRes] = await Promise.all([
+        fetch("/api/profile"),
+        fetch("/api/food-price"),
+        fetch("/api/food-summary"),
+      ]);
 
-      if (!authRes.ok) {
+      if (
+        profileRes.status === 401 ||
+        priceRes.status === 401 ||
+        summaryRes.status === 401
+      ) {
         router.push("/login");
         return;
       }
 
-      const profileRes = await fetch("/api/profile");
       const profileData = await profileRes.json();
 
       if (!profileData.hasProfile) {
@@ -225,7 +234,6 @@ const router = useRouter();
         return;
       }
 
-      const priceRes = await fetch("/api/food-price");
       const priceData = await priceRes.json();
 
       const loadedPrices = {
@@ -246,15 +254,16 @@ const router = useRouter();
         setShowPriceSetup(true);
       }
 
-      const monthsRes = await fetch("/api/food-months");
-      const monthsData = await monthsRes.json();
-      setMonths(monthsData);
-
-      const summaryRes = await fetch("/api/food-summary");
-      const summaryData = await summaryRes.json();
-      setSummary(summaryData);
+      setSummary(await summaryRes.json());
 
       setLoading(false);
+
+      // The month list is only needed for Monthly Report, so it loads in the
+      // background once the dashboard is already showing.
+      fetch("/api/food-months")
+        .then((res) => res.json())
+        .then((data) => setMonths(data))
+        .catch(() => {});
     }
 
     loadData();
@@ -488,7 +497,8 @@ const router = useRouter();
       return;
     }
 
-    await refreshSummary();
+    // Refresh the totals in the background so the form clears right away.
+    refreshSummary().catch(() => {});
 
     const wasEditing = editingEntryId !== null;
     const setSuccess =
