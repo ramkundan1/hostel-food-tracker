@@ -18,9 +18,7 @@ type FoodSelection = {
   chicken: boolean;
 };
 
-type AdditionalPerson = FoodSelection & {
-  memberUserId?: number | null;
-};
+type AdditionalPerson = FoodSelection;
 
 type Entry = {
   id: number;
@@ -148,9 +146,6 @@ const router = useRouter();
     { nepaliYear: number; nepaliMonth: number }[]
   >([]);
 
-  const [groupMembers, setGroupMembers] = useState<
-    { userId: number; displayName: string }[]
-  >([]);
 
   const [selectedMonth, setSelectedMonth] = useState<{
     nepaliYear: number;
@@ -222,11 +217,12 @@ const router = useRouter();
         return;
       }
 
-      const groupRes = await fetch("/api/groups/me");
-      const groupData = await groupRes.json();
+      const profileRes = await fetch("/api/profile");
+      const profileData = await profileRes.json();
 
-      if (groupData.group) {
-        setGroupMembers(groupData.group.members ?? []);
+      if (!profileData.hasProfile) {
+        router.push("/profile-setup");
+        return;
       }
 
       const priceRes = await fetch("/api/food-price");
@@ -368,23 +364,6 @@ const router = useRouter();
               ...person,
               [food]: !person[food],
             }
-          : person
-      )
-    );
-  }
-
-  function setPersonMember(
-    mealType: "lunch" | "dinner",
-    personIndex: number,
-    memberUserId: number | null
-  ) {
-    const setter =
-      mealType === "lunch" ? setLunchPeople : setDinnerPeople;
-
-    setter((current) =>
-      current.map((person, index) =>
-        index === personIndex
-          ? { ...person, memberUserId }
           : person
       )
     );
@@ -898,10 +877,6 @@ const router = useRouter();
             onTogglePersonFood={(index, food) =>
               togglePersonFood("lunch", index, food)
             }
-            onSetPersonMember={(index, memberUserId) =>
-              setPersonMember("lunch", index, memberUserId)
-            }
-            groupMembers={groupMembers}
             onPeopleCountChange={(count) =>
               updatePeopleCount("lunch", count)
             }
@@ -932,10 +907,6 @@ const router = useRouter();
             onTogglePersonFood={(index, food) =>
               togglePersonFood("dinner", index, food)
             }
-            onSetPersonMember={(index, memberUserId) =>
-              setPersonMember("dinner", index, memberUserId)
-            }
-            groupMembers={groupMembers}
             onPeopleCountChange={(count) =>
               updatePeopleCount("dinner", count)
             }
@@ -969,7 +940,6 @@ function MealCard({
   additionalOpen,
   onToggle,
   onTogglePersonFood,
-  onSetPersonMember,
   onPeopleCountChange,
   onExtraToggle,
   onAdditionalToggle,
@@ -980,7 +950,6 @@ function MealCard({
   editing,
   error,
   success,
-  groupMembers,
 }: {
   title: string;
   selection: FoodSelection;
@@ -992,7 +961,6 @@ function MealCard({
     index: number,
     food: keyof FoodSelection
   ) => void;
-  onSetPersonMember: (index: number, memberUserId: number | null) => void;
   onPeopleCountChange: (count: number) => void;
   onExtraToggle: () => void;
   onAdditionalToggle: () => void;
@@ -1003,7 +971,6 @@ function MealCard({
   editing: boolean;
   error: string | null;
   success: string | null;
-  groupMembers: { userId: number; displayName: string }[];
 }) {
   const isLunch = title.toLowerCase() === "lunch";
   const emoji = isLunch ? "🍛" : "🌙";
@@ -1189,29 +1156,9 @@ function MealCard({
                   key={index}
                   className="rounded-xl border border-slate-800 p-3"
                 >
-                  <p className="mb-2 text-sm font-semibold">
+                  <p className="mb-3 text-sm font-semibold">
                     Person {index + 1}
                   </p>
-
-                  {groupMembers.length > 0 && (
-                    <select
-                      value={person.memberUserId ?? ""}
-                      onChange={(e) =>
-                        onSetPersonMember(
-                          index,
-                          e.target.value === "" ? null : Number(e.target.value)
-                        )
-                      }
-                      className="mb-3 w-full rounded-lg border border-slate-700 bg-slate-950 p-2 text-sm outline-none focus:border-emerald-400"
-                    >
-                      <option value="">Guest (not in group)</option>
-                      {groupMembers.map((member) => (
-                        <option key={member.userId} value={member.userId}>
-                          {member.displayName}
-                        </option>
-                      ))}
-                    </select>
-                  )}
 
                   <div className="grid grid-cols-2 gap-2">
                     {(

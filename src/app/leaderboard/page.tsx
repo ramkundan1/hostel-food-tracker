@@ -1,27 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import nepaliDateConverter from "nepali-date-converter";
-
-const NEPALI_MONTHS = [
-  "Baisakh",
-  "Jestha",
-  "Asar",
-  "Shrawan",
-  "Bhadra",
-  "Aswin",
-  "Kartik",
-  "Mangsir",
-  "Poush",
-  "Magh",
-  "Falgun",
-  "Chaitra",
-];
-
-function formatNepaliMonth(year: number, monthIndex: number) {
-  return `${NEPALI_MONTHS[monthIndex] ?? "?"} ${year}`;
-}
 
 type Badge = {
   id: string;
@@ -35,8 +15,9 @@ type Stats = {
   currentStreak: number;
   longestStreak: number;
   totalEntries: number;
-  totalSpent: number;
   chickenCount: number;
+  points: number;
+  level: string;
   badges: Badge[];
 };
 
@@ -44,16 +25,11 @@ type LeaderboardRow = {
   userId: number;
   displayName: string;
   isYou: boolean;
-  totalSpent: number;
-  entryCount: number;
-};
-
-type Debt = {
-  fromUserId: number;
-  fromName: string;
-  toUserId: number;
-  toName: string;
-  amount: number;
+  points: number;
+  level: string;
+  currentStreak: number;
+  totalEntries: number;
+  badges: string[];
 };
 
 const medalFor = (rank: number) =>
@@ -65,19 +41,7 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats | null>(null);
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [myUserId, setMyUserId] = useState<number | null>(null);
-  const [settling, setSettling] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
-  const [group, setGroup] = useState<{
-    name: string;
-    inviteCode: string;
-    memberCount: number;
-  } | null>(null);
-
-  const todayNepali = useMemo(() => new nepaliDateConverter(), []);
-  const [viewYear, setViewYear] = useState(todayNepali.getYear());
-  const [viewMonth, setViewMonth] = useState(todayNepali.getMonth());
 
   useEffect(() => {
     async function load() {
@@ -88,17 +52,15 @@ export default function LeaderboardPage() {
         return;
       }
 
-      const authData = await authRes.json();
-      setMyUserId(authData.userId);
+      const [statsRes, boardRes] = await Promise.all([
+        fetch("/api/stats"),
+        fetch("/api/leaderboard"),
+      ]);
 
-      const groupRes = await fetch("/api/groups/me");
-      const groupData = await groupRes.json();
+      setStats(await statsRes.json());
 
-      setGroup(groupData.group ?? null);
-
-      const statsRes = await fetch("/api/stats");
-      const statsData = await statsRes.json();
-      setStats(statsData);
+      const boardData = await boardRes.json();
+      setRows(boardData.rows ?? []);
 
       setLoading(false);
     }
@@ -106,93 +68,21 @@ export default function LeaderboardPage() {
     load();
   }, [router]);
 
-  useEffect(() => {
-    async function loadLeaderboard() {
-      if (!group) return;
-
-      const res = await fetch(
-        `/api/leaderboard?year=${viewYear}&month=${viewMonth}`
-      );
-      const data = await res.json();
-      setRows(data.rows ?? []);
-
-      const settleRes = await fetch(
-        `/api/settle-up?year=${viewYear}&month=${viewMonth}`
-      );
-      const settleData = await settleRes.json();
-      setDebts(settleData.debts ?? []);
-    }
-
-    loadLeaderboard();
-  }, [viewYear, viewMonth, group]);
-
-  async function markSettled(debt: Debt) {
-    const confirmed = window.confirm(
-      `Mark this as settled? ${debt.fromName} paid ${debt.toName} Rs. ${debt.amount.toFixed(2)}.`
-    );
-
-    if (!confirmed) return;
-
-    setSettling(debt.toUserId);
-
-    const res = await fetch("/api/settle-up/mark", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        toUserId: debt.toUserId,
-        amount: debt.amount,
-        nepaliYear: viewYear,
-        nepaliMonth: viewMonth,
-      }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      alert(data.error ?? "Couldn't mark this as settled.");
-      setSettling(null);
-      return;
-    }
-
-    const settleRes = await fetch(
-      `/api/settle-up?year=${viewYear}&month=${viewMonth}`
-    );
-    const settleData = await settleRes.json();
-    setDebts(settleData.debts ?? []);
-    setSettling(null);
-  }
-
-  function changeMonth(delta: number) {
-    let newMonth = viewMonth + delta;
-    let newYear = viewYear;
-
-    if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    } else if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
-    }
-
-    setViewMonth(newMonth);
-    setViewYear(newYear);
-  }
-
   async function copyRecap() {
     if (!stats) return;
 
-    const you = rows.find((r) => r.isYou);
     const rank = rows.findIndex((r) => r.isYou);
+    const earned = stats.badges.filter((b) => b.earned).map((b) => b.emoji);
 
     const lines = [
-      `🍽️ My ${formatNepaliMonth(viewYear, viewMonth)} Hostel Food Recap`,
-      you ? `💰 Spent: Rs. ${you.totalSpent.toFixed(2)} (${you.entryCount} meals)` : null,
+      "🍽️ My Hostel Food Tracker Recap",
       rank >= 0 ? `🏆 Rank: ${medalFor(rank)} of ${rows.length}` : null,
+      `⭐ Points: ${stats.points} (${stats.level})`,
       `🔥 Current streak: ${stats.currentStreak} day${stats.currentStreak === 1 ? "" : "s"}`,
-      `⭐ Longest streak: ${stats.longestStreak} days`,
-      `🍗 Chicken orders (all-time): ${stats.chickenCount}`,
+      earned.length > 0 ? `🎖️ Badges: ${earned.join(" ")}` : null,
       "",
       "Track yours at Hostel Food Tracker 🍛",
-    ].filter(Boolean);
+    ].filter((line) => line !== null);
 
     try {
       await navigator.clipboard.writeText(lines.join("\n"));
@@ -205,7 +95,7 @@ export default function LeaderboardPage() {
 
   async function deleteAccount() {
     const confirmed = window.confirm(
-      "Delete your account permanently? This removes all your meal entries, prices, and group membership. This can't be undone."
+      "Delete your account permanently? This removes all your meal entries, prices, and points. This can't be undone."
     );
 
     if (!confirmed) return;
@@ -240,65 +130,38 @@ export default function LeaderboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🏆 Stats & Leaderboard
+              🏆 Leaderboard
             </p>
             <h1 className="font-display mt-2 text-3xl font-extrabold">
-              How you're doing
+              Who&apos;s eating best?
             </h1>
           </div>
 
-          <button
-            onClick={() => router.push("/")}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
-          >
-            ← Back
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push("/profile-setup")}
+              className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold"
+            >
+              ✏️ Profile
+            </button>
+            <button
+              onClick={() => router.push("/")}
+              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
 
-        {/* Group */}
-        {group ? (
-          <section className="mt-6 flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 p-4">
-            <div>
-              <p className="text-xs text-slate-500">Your group</p>
-              <p className="font-bold">
-                {group.name} · {group.memberCount} member
-                {group.memberCount === 1 ? "" : "s"}
-              </p>
-            </div>
-
-            <div className="text-right">
-              <p className="text-xs text-slate-500">Invite code</p>
-              <p className="font-mono font-bold tracking-widest text-amber-400">
-                {group.inviteCode}
-              </p>
-            </div>
-          </section>
-        ) : (
-          <section className="mt-6 flex items-center justify-between rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-4">
-            <div>
-              <p className="font-semibold">No group yet</p>
-              <p className="text-xs text-slate-500">
-                Join or create one to compare spend with your roommates.
-              </p>
-            </div>
-
-            <button
-              onClick={() => router.push("/group-setup")}
-              className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-2 text-sm font-bold text-slate-950"
-            >
-              Join / Create
-            </button>
-          </section>
-        )}
-
-        {/* Streak */}
+        {/* Your stats */}
         <section className="mt-6 rounded-3xl border border-slate-800 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 text-center">
-          <p className="text-6xl">🔥</p>
-          <p className="font-display mt-2 text-4xl font-extrabold">
-            {stats.currentStreak} day{stats.currentStreak === 1 ? "" : "s"}
+          <p className="text-sm text-slate-400">{stats.level}</p>
+          <p className="font-display mt-1 text-5xl font-extrabold">
+            {stats.points} <span className="text-2xl text-amber-400">pts</span>
           </p>
-          <p className="mt-1 text-slate-400">
-            Current streak — longest ever: {stats.longestStreak} days
+          <p className="mt-2 text-slate-400">
+            🔥 {stats.currentStreak} day{stats.currentStreak === 1 ? "" : "s"}{" "}
+            streak · best {stats.longestStreak}
           </p>
         </section>
 
@@ -327,125 +190,50 @@ export default function LeaderboardPage() {
         </section>
 
         {/* Leaderboard */}
-        {group && (
         <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold">
-              💸 Frugal Leaderboard
-            </h2>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => changeMonth(-1)}
-                className="rounded-lg border border-slate-700 px-2 py-1 text-sm"
-              >
-                ←
-              </button>
-              <span className="text-sm text-slate-400">
-                {formatNepaliMonth(viewYear, viewMonth)}
-              </span>
-              <button
-                onClick={() => changeMonth(1)}
-                className="rounded-lg border border-slate-700 px-2 py-1 text-sm"
-              >
-                →
-              </button>
-            </div>
-          </div>
-
+          <h2 className="font-display text-xl font-bold">
+            🌍 Everyone ({rows.length})
+          </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Lowest spender wins bragging rights. Only totals are shared — not
-            what anyone else actually ate.
+            10 pts per meal logged · 50 pts per badge · 5 pts per streak day.
+            Only names and points are shown.
           </p>
 
           <div className="mt-4 space-y-2">
-            {rows.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-800 p-6 text-center text-slate-500">
-                No one's logged anything this month yet.
-              </p>
-            )}
-
             {rows.map((row, index) => (
               <div
                 key={row.userId}
-                className={`flex items-center justify-between rounded-xl border p-3 ${
+                className={`flex items-center justify-between gap-3 rounded-xl border p-3 ${
                   row.isYou
                     ? "border-emerald-700 bg-emerald-950/30"
                     : "border-slate-800 bg-slate-950"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="w-8 text-center font-bold">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="w-8 shrink-0 text-center font-bold">
                     {medalFor(index)}
                   </span>
-                  <span className="font-semibold">
-                    {row.displayName}
-                    {row.isYou ? " (you)" : ""}
-                  </span>
+
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">
+                      {row.displayName}
+                      {row.isYou ? " (you)" : ""}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {row.level}
+                      {row.currentStreak > 0 ? ` · 🔥 ${row.currentStreak}` : ""}
+                      {row.badges.length > 0 ? ` · ${row.badges.join("")}` : ""}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="text-right">
-                  <p className="font-bold text-emerald-400">
-                    Rs. {row.totalSpent.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {row.entryCount} meals
-                  </p>
-                </div>
+                <p className="shrink-0 font-bold text-amber-400">
+                  {row.points} pts
+                </p>
               </div>
             ))}
           </div>
         </section>
-        )}
-
-        {group && debts.length > 0 && (
-        <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <h2 className="font-display text-xl font-bold">🤝 Settle Up</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            Based on who covered extra portions for whom this month.
-          </p>
-
-          <div className="mt-4 space-y-2">
-            {debts.map((debt) => {
-              const involvesMe =
-                debt.fromUserId === myUserId || debt.toUserId === myUserId;
-
-              const label =
-                debt.fromUserId === myUserId
-                  ? `You owe ${debt.toName}`
-                  : debt.toUserId === myUserId
-                    ? `${debt.fromName} owes you`
-                    : `${debt.fromName} owes ${debt.toName}`;
-
-              return (
-                <div
-                  key={`${debt.fromUserId}-${debt.toUserId}`}
-                  className={`flex items-center justify-between rounded-xl border p-3 ${
-                    involvesMe
-                      ? "border-amber-800 bg-amber-950/20"
-                      : "border-slate-800 bg-slate-950"
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold">{label}</p>
-                    <p className="text-xs text-slate-500">
-                      Rs. {debt.amount.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => markSettled(debt)}
-                    disabled={settling === debt.toUserId}
-                    className="rounded-full border border-emerald-700 bg-emerald-950/40 px-3 py-1.5 text-xs font-semibold text-emerald-300 disabled:opacity-50"
-                  >
-                    {settling === debt.toUserId ? "..." : "Mark settled"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-        )}
 
         <button
           onClick={copyRecap}

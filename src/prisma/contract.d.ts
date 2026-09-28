@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'210fc6169fe76e3d300e32d81d29eb08fa5c738bf059fa6118b88ee2e7f829fe'>;
+  StorageHashBase<'6b3a869babb05b5020e4c869803d9390c69f8b2bce5e8424bd448838bf3bc2bb'>;
 export type ExecutionHash =
   ExecutionHashBase<'9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24'>;
 export type ProfileHash =
@@ -328,6 +328,7 @@ export type FieldOutputTypes = {
       readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -421,6 +422,7 @@ export type FieldInputTypes = {
       readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['input'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -502,6 +504,7 @@ export type StorageColumnTypes = {
       readonly toUserId: CodecTypes['pg/int4@1']['output'];
     };
     readonly user: {
+      readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly emailVerified: CodecTypes['pg/bool@1']['output'];
@@ -595,6 +598,7 @@ export type StorageColumnInputTypes = {
       readonly toUserId: CodecTypes['pg/int4@1']['input'];
     };
     readonly user: {
+      readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly emailVerified: CodecTypes['pg/bool@1']['input'];
@@ -627,6 +631,7 @@ export namespace Models {
     resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
     lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    age: CodecTypes['pg/int4@1']['output'] | null;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     foodEntries: public_FoodEntry[];
@@ -1359,6 +1364,11 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: true;
                 };
+                readonly age: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -1951,6 +1961,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
+              readonly age: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -2017,6 +2031,7 @@ type ContractBase = Omit<
                 readonly resetTokenExpiresAt: { readonly column: 'resetTokenExpiresAt' };
                 readonly failedLoginAttempts: { readonly column: 'failedLoginAttempts' };
                 readonly lockedUntil: { readonly column: 'lockedUntil' };
+                readonly age: { readonly column: 'age' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

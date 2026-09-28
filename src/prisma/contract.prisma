@@ -13,6 +13,7 @@ model User {
   resetTokenExpiresAt TimestamptzString?
   failedLoginAttempts Int @default(0)
   lockedUntil TimestamptzString?
+  age Int?
   posts        Post[]
   foodEntries  FoodEntry[]
   createdAt    TimestamptzString @default(now())

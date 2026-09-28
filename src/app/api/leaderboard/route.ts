@@ -1,100 +1,57 @@
 import { db } from "@/prisma/db";
-import nepaliDateConverter from "nepali-date-converter";
 import { getCurrentUserId } from "@/lib/auth";
+import { computeStats } from "@/lib/stats";
 
-export async function GET(request: Request) {
+// Everyone-vs-everyone leaderboard, visible to any logged-in user.
+// Only shares nickname, points, level, streak and badges — never emails,
+// ages, or money.
+export async function GET() {
   const userId = await getCurrentUserId();
 
   if (!userId) {
     return Response.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  const url = new URL(request.url);
-  const requestedYear = url.searchParams.get("year");
-  const requestedMonth = url.searchParams.get("month");
+  const users = await db.orm.public.User.where({ emailVerified: true }).all();
 
-  const today = new nepaliDateConverter();
-
-  const nepaliYear = requestedYear ? Number(requestedYear) : today.getYear();
-  const nepaliMonth = requestedMonth
-    ? Number(requestedMonth)
-    : today.getMonth();
-
-  if (
-    !Number.isInteger(nepaliYear) ||
-    !Number.isInteger(nepaliMonth) ||
-    nepaliMonth < 1 ||
-    nepaliMonth > 12
-  ) {
-    return Response.json(
-      { error: "Invalid Nepali year or month" },
-      { status: 400 }
-    );
-  }
-
-  // Leaderboards are scoped to the user's own group — never all
-  // registered users app-wide, since unrelated households shouldn't see
-  // each other's spend data.
-  const membership = await db.orm.public.GroupMember.where({ userId }).first();
-
-  if (!membership) {
-    return Response.json(
-      { error: "Join or create a group first." },
-      { status: 400 }
-    );
-  }
-
-  const groupMembers = await db.orm.public.GroupMember
-    .where({ groupId: membership.groupId })
+  // Two queries for all entries (rather than one per user), so the number of
+  // database calls stays fixed as more people join.
+  const lunches = await db.orm.public.FoodEntry
+    .where({ mealType: "lunch" })
+    .all();
+  const dinners = await db.orm.public.FoodEntry
+    .where({ mealType: "dinner" })
     .all();
 
-  const memberIds = new Set(groupMembers.map((m) => m.userId));
+  const entriesByUser = new Map<number, typeof lunches>();
 
-  const allEntries = await db.orm.public.FoodEntry
-    .where({ nepaliYear, nepaliMonth })
-    .all();
+  for (const entry of [...lunches, ...dinners]) {
+    const list = entriesByUser.get(entry.userId) ?? [];
+    list.push(entry);
+    entriesByUser.set(entry.userId, list);
+  }
 
-  const entries = allEntries.filter((entry) => memberIds.has(entry.userId));
+  const rows = users.map((user) => {
+    const stats = computeStats(entriesByUser.get(user.id) ?? []);
 
-  const totalsByUser = new Map<
-    number,
-    { totalSpent: number; entryCount: number }
-  >();
-
-  for (const entry of entries) {
-    const current = totalsByUser.get(entry.userId) ?? {
-      totalSpent: 0,
-      entryCount: 0,
+    return {
+      userId: user.id,
+      displayName: user.name?.trim() || "Anonymous eater",
+      isYou: user.id === userId,
+      points: stats.points,
+      level: stats.level,
+      currentStreak: stats.currentStreak,
+      totalEntries: stats.totalEntries,
+      badges: stats.badges.filter((b) => b.earned).map((b) => b.emoji),
     };
+  });
 
-    current.totalSpent += entry.totalCost;
-    current.entryCount += 1;
-    totalsByUser.set(entry.userId, current);
-  }
-
-  const rows = await Promise.all(
-    Array.from(totalsByUser.entries()).map(async ([id, totals]) => {
-      const user = await db.orm.public.User.where({ id }).first();
-
-      const displayName =
-        user?.name || user?.username || user?.email.split("@")[0] || "Someone";
-
-      return {
-        userId: id,
-        displayName,
-        isYou: id === userId,
-        ...totals,
-      };
-    })
+  rows.sort(
+    (a, b) =>
+      b.points - a.points ||
+      b.totalEntries - a.totalEntries ||
+      a.displayName.localeCompare(b.displayName)
   );
 
-  // Lowest total spend first — the "frugal champion" framing, since this
-  // is a cost tracker and spending less is the fun thing to brag about.
-  rows.sort((a, b) => a.totalSpent - b.totalSpent);
-
-  return Response.json({
-    nepaliYear,
-    nepaliMonth,
-    rows,
-  });
+  return Response.json({ rows });
 }

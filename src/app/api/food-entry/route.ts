@@ -220,8 +220,6 @@ userId,
       curd: Boolean(person.curd),
       chicken: Boolean(person.chicken),
       totalCost: getPersonCost(person, foodPrice),
-      memberUserId:
-        typeof person.memberUserId === "number" ? person.memberUserId : null,
     });
   }
 
@@ -440,8 +438,6 @@ export async function PUT(request: Request) {
       curd: Boolean(person.curd),
       chicken: Boolean(person.chicken),
       totalCost: getPersonCost(person, foodPrice),
-      memberUserId:
-        typeof person.memberUserId === "number" ? person.memberUserId : null,
     });
   }
 
