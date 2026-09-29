@@ -73,13 +73,13 @@ export default function LeaderboardPage() {
     const earned = stats.badges.filter((b) => b.earned).map((b) => b.emoji);
 
     const lines = [
-      "🍽️ My Hostel Food Tracker Recap",
+      "🍽️ My Eatrack Recap",
       rank >= 0 ? `🏆 Rank: ${medalFor(rank)} of ${rows.length}` : null,
       `⭐ Points: ${stats.points} (${stats.level})`,
       `🔥 Current streak: ${stats.currentStreak} day${stats.currentStreak === 1 ? "" : "s"}`,
       earned.length > 0 ? `🎖️ Badges: ${earned.join(" ")}` : null,
       "",
-      "Track yours at Hostel Food Tracker 🍛",
+      "Track yours at Eatrack 🍛",
     ].filter((line) => line !== null);
 
     try {

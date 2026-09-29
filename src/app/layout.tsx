@@ -19,7 +19,7 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "Hostel Food Tracker",
+  title: "Eatrack",
   description: "Track daily hostel meals and monthly food expenses.",
 };
 

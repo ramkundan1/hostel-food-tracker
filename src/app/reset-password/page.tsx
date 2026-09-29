@@ -121,7 +121,7 @@ export default function ResetPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-          🍽️ Hostel Food Tracker
+          🍽️ Eatrack
         </p>
 
         <h1 className="font-display mt-2 text-3xl font-extrabold">

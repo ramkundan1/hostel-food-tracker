@@ -654,7 +654,7 @@ const router = useRouter();
         <div className="mx-auto max-w-2xl pt-10">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🍽️ Hostel Food Tracker
+              🍽️ Eatrack
             </p>
 
             {prices.meal !== null && (
@@ -748,7 +748,7 @@ const router = useRouter();
         <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🍽️ Hostel Food Tracker
+              🍽️ Eatrack
             </p>
 
             <h1 className="font-display mt-2 text-4xl font-extrabold tracking-tight">
@@ -1299,7 +1299,7 @@ function MonthlyReport({
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `hostel-food-tracker-${formatNepaliMonth(report.nepaliYear, report.nepaliMonth).replace(" ", "-")}.csv`;
+    link.download = `eatrack-${formatNepaliMonth(report.nepaliYear, report.nepaliMonth).replace(" ", "-")}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }

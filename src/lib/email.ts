@@ -8,7 +8,7 @@
 //      testing)
 //   3. Create an API key and set it as RESEND_API_KEY in your .env
 //   4. Set EMAIL_FROM to an address on your verified domain
-//      (e.g. "Hostel Food Tracker <noreply@yourdomain.com>")
+//      (e.g. "Eatrack <noreply@yourdomain.com>")
 //   5. Set APP_URL to your site's public URL (used to build the
 //      verification link). Falls back to http://localhost:3000.
 //
@@ -81,11 +81,11 @@ export async function sendVerificationEmail(
 
   return sendEmail(
     email,
-    "Verify your email — Hostel Food Tracker",
+    "Verify your email — Eatrack",
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Verify your email</h2>
-        <p>Thanks for signing up for Hostel Food Tracker. Click the button below to verify your email address. This link expires in 24 hours.</p>
+        <p>Thanks for signing up for Eatrack. Click the button below to verify your email address. This link expires in 24 hours.</p>
         <p style="margin: 24px 0;">
           <a href="${link}" style="background:#10b981;color:#020617;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold;">
             Verify Email
@@ -107,11 +107,11 @@ export async function sendPasswordResetEmail(
 
   return sendEmail(
     email,
-    "Reset your password — Hostel Food Tracker",
+    "Reset your password — Eatrack",
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Reset your password</h2>
-        <p>We got a request to reset your Hostel Food Tracker password. Click the button below to choose a new one. This link expires in 1 hour.</p>
+        <p>We got a request to reset your Eatrack password. Click the button below to choose a new one. This link expires in 1 hour.</p>
         <p style="margin: 24px 0;">
           <a href="${link}" style="background:#f59e0b;color:#020617;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold;">
             Reset Password
