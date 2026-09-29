@@ -14,6 +14,7 @@
   "dependencies": {
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "^8.0.0-rc.11",
+    "@vercel/analytics": "^2.0.1",
     "dotenv": "^18.0.1",
     "jose": "^6.2.12",
     "lucide-react": "^1.47.0",
