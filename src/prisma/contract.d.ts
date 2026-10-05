@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6b3a869babb05b5020e4c869803d9390c69f8b2bce5e8424bd448838bf3bc2bb'>;
+  StorageHashBase<'78960ecab322dbf2ff4e75b8efb8135d3760d4c7b3c179b616c6bd6a1421790f'>;
 export type ExecutionHash =
   ExecutionHashBase<'9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24'>;
 export type ProfileHash =
@@ -329,6 +329,20 @@ export type FieldOutputTypes = {
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly age: CodecTypes['pg/int4@1']['output'] | null;
+      readonly deleteToken: CodecTypes['pg/text@1']['output'] | null;
+      readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+      readonly pointsSpent: CodecTypes['pg/int4@1']['output'];
+      readonly autoEntryCredits: CodecTypes['pg/int4@1']['output'];
+      readonly autoEntryEnabled: CodecTypes['pg/bool@1']['output'];
+      readonly lastStreakRewardTier: CodecTypes['pg/int4@1']['output'];
+      readonly autoLunchMeal: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchEgg: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchCurd: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchChicken: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerMeal: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerEgg: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerCurd: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerChicken: CodecTypes['pg/bool@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -423,6 +437,20 @@ export type FieldInputTypes = {
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['input'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly age: CodecTypes['pg/int4@1']['input'] | null;
+      readonly deleteToken: CodecTypes['pg/text@1']['input'] | null;
+      readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
+      readonly pointsSpent: CodecTypes['pg/int4@1']['input'];
+      readonly autoEntryCredits: CodecTypes['pg/int4@1']['input'];
+      readonly autoEntryEnabled: CodecTypes['pg/bool@1']['input'];
+      readonly lastStreakRewardTier: CodecTypes['pg/int4@1']['input'];
+      readonly autoLunchMeal: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchEgg: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchCurd: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchChicken: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerMeal: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerEgg: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerCurd: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerChicken: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -505,14 +533,28 @@ export type StorageColumnTypes = {
     };
     readonly user: {
       readonly age: CodecTypes['pg/int4@1']['output'] | null;
+      readonly autoDinnerChicken: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerCurd: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerEgg: CodecTypes['pg/bool@1']['output'];
+      readonly autoDinnerMeal: CodecTypes['pg/bool@1']['output'];
+      readonly autoEntryCredits: CodecTypes['pg/int4@1']['output'];
+      readonly autoEntryEnabled: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchChicken: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchCurd: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchEgg: CodecTypes['pg/bool@1']['output'];
+      readonly autoLunchMeal: CodecTypes['pg/bool@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly deleteToken: CodecTypes['pg/text@1']['output'] | null;
+      readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly emailVerified: CodecTypes['pg/bool@1']['output'];
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly lastStreakRewardTier: CodecTypes['pg/int4@1']['output'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly name: CodecTypes['pg/text@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
+      readonly pointsSpent: CodecTypes['pg/int4@1']['output'];
       readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
       readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -599,14 +641,28 @@ export type StorageColumnInputTypes = {
     };
     readonly user: {
       readonly age: CodecTypes['pg/int4@1']['input'] | null;
+      readonly autoDinnerChicken: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerCurd: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerEgg: CodecTypes['pg/bool@1']['input'];
+      readonly autoDinnerMeal: CodecTypes['pg/bool@1']['input'];
+      readonly autoEntryCredits: CodecTypes['pg/int4@1']['input'];
+      readonly autoEntryEnabled: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchChicken: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchCurd: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchEgg: CodecTypes['pg/bool@1']['input'];
+      readonly autoLunchMeal: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly deleteToken: CodecTypes['pg/text@1']['input'] | null;
+      readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly emailVerified: CodecTypes['pg/bool@1']['input'];
       readonly failedLoginAttempts: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly lastStreakRewardTier: CodecTypes['pg/int4@1']['input'];
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly name: CodecTypes['pg/text@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
+      readonly pointsSpent: CodecTypes['pg/int4@1']['input'];
       readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
       readonly resetTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -632,6 +688,20 @@ export namespace Models {
     failedLoginAttempts: CodecTypes['pg/int4@1']['output'];
     lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     age: CodecTypes['pg/int4@1']['output'] | null;
+    deleteToken: CodecTypes['pg/text@1']['output'] | null;
+    deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
+    pointsSpent: CodecTypes['pg/int4@1']['output'];
+    autoEntryCredits: CodecTypes['pg/int4@1']['output'];
+    autoEntryEnabled: CodecTypes['pg/bool@1']['output'];
+    lastStreakRewardTier: CodecTypes['pg/int4@1']['output'];
+    autoLunchMeal: CodecTypes['pg/bool@1']['output'];
+    autoLunchEgg: CodecTypes['pg/bool@1']['output'];
+    autoLunchCurd: CodecTypes['pg/bool@1']['output'];
+    autoLunchChicken: CodecTypes['pg/bool@1']['output'];
+    autoDinnerMeal: CodecTypes['pg/bool@1']['output'];
+    autoDinnerEgg: CodecTypes['pg/bool@1']['output'];
+    autoDinnerCurd: CodecTypes['pg/bool@1']['output'];
+    autoDinnerChicken: CodecTypes['pg/bool@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     foodEntries: public_FoodEntry[];
@@ -1369,6 +1439,124 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/int4@1';
                   readonly nullable: true;
                 };
+                readonly deleteToken: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly deleteTokenExpiresAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                };
+                readonly pointsSpent: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly autoEntryCredits: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly autoEntryEnabled: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly lastStreakRewardTier: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                };
+                readonly autoLunchMeal: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoLunchEgg: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoLunchCurd: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoLunchChicken: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoDinnerMeal: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoDinnerEgg: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoDinnerCurd: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
+                readonly autoDinnerChicken: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -1965,6 +2153,65 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly deleteToken: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly deleteTokenExpiresAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly pointsSpent: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly autoEntryCredits: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly autoEntryEnabled: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly lastStreakRewardTier: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly autoLunchMeal: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoLunchEgg: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoLunchCurd: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoLunchChicken: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoDinnerMeal: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoDinnerEgg: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoDinnerCurd: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly autoDinnerChicken: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -2032,6 +2279,20 @@ type ContractBase = Omit<
                 readonly failedLoginAttempts: { readonly column: 'failedLoginAttempts' };
                 readonly lockedUntil: { readonly column: 'lockedUntil' };
                 readonly age: { readonly column: 'age' };
+                readonly deleteToken: { readonly column: 'deleteToken' };
+                readonly deleteTokenExpiresAt: { readonly column: 'deleteTokenExpiresAt' };
+                readonly pointsSpent: { readonly column: 'pointsSpent' };
+                readonly autoEntryCredits: { readonly column: 'autoEntryCredits' };
+                readonly autoEntryEnabled: { readonly column: 'autoEntryEnabled' };
+                readonly lastStreakRewardTier: { readonly column: 'lastStreakRewardTier' };
+                readonly autoLunchMeal: { readonly column: 'autoLunchMeal' };
+                readonly autoLunchEgg: { readonly column: 'autoLunchEgg' };
+                readonly autoLunchCurd: { readonly column: 'autoLunchCurd' };
+                readonly autoLunchChicken: { readonly column: 'autoLunchChicken' };
+                readonly autoDinnerMeal: { readonly column: 'autoDinnerMeal' };
+                readonly autoDinnerEgg: { readonly column: 'autoDinnerEgg' };
+                readonly autoDinnerCurd: { readonly column: 'autoDinnerCurd' };
+                readonly autoDinnerChicken: { readonly column: 'autoDinnerChicken' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

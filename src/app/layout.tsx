@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Baloo_2 } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -13,27 +13,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baloo = Baloo_2({
-  variable: "--font-baloo",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
 export const metadata: Metadata = {
   title: "Eatrack",
-  description: "Track daily hostel meals and monthly food expenses.",
+  description: "Track your meals and manage shared food costs.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950">
+      <body className="min-h-full flex flex-col bg-white text-slate-900">
         {children}
         <Analytics />
       </body>
     </html>
   );
 }
+

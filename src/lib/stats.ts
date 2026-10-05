@@ -95,14 +95,26 @@ export function computeStats(entries: StatsEntry[]): UserStats {
   const earnedCount = badges.filter((b) => b.earned).length;
   const points = totalEntries * 10 + earnedCount * 50 + currentStreak * 5;
 
-  const level =
-    points >= 1200
-      ? "Legend 👑"
-      : points >= 400
-        ? "Foodie 🔥"
-        : points >= 100
-          ? "Regular 🍛"
-          : "Newbie 🐣";
-
-  return { currentStreak, longestStreak, totalEntries, chickenCount, badges, points, level };
+  return {
+    currentStreak,
+    longestStreak,
+    totalEntries,
+    chickenCount,
+    badges,
+    points,
+    level: levelForPoints(points),
+  };
 }
+
+// Exported separately so callers can recompute a level after subtracting
+// redeemed points, without re-deriving everything from entries again.
+export function levelForPoints(points: number): string {
+  return points >= 1200
+    ? "Legend 👑"
+    : points >= 400
+      ? "Foodie 🔥"
+      : points >= 100
+        ? "Regular 🍛"
+        : "Newbie 🐣";
+}
+

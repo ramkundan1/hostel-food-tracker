@@ -14,6 +14,20 @@ model User {
   failedLoginAttempts Int @default(0)
   lockedUntil TimestamptzString?
   age Int?
+  deleteToken String?
+  deleteTokenExpiresAt TimestamptzString?
+  pointsSpent Int @default(0)
+  autoEntryCredits Int @default(0)
+  autoEntryEnabled Boolean @default(false)
+  lastStreakRewardTier Int @default(0)
+  autoLunchMeal Boolean @default(false)
+  autoLunchEgg Boolean @default(false)
+  autoLunchCurd Boolean @default(false)
+  autoLunchChicken Boolean @default(false)
+  autoDinnerMeal Boolean @default(false)
+  autoDinnerEgg Boolean @default(false)
+  autoDinnerCurd Boolean @default(false)
+  autoDinnerChicken Boolean @default(false)
   posts        Post[]
   foodEntries  FoodEntry[]
   createdAt    TimestamptzString @default(now())
@@ -106,3 +120,4 @@ model Settlement {
   amount      Float
   settledAt   TimestamptzString @default(now())
 }
+

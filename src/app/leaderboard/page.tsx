@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trophy, Flame, Gift, Settings } from "lucide-react";
 
 type Badge = {
   id: string;
@@ -73,13 +74,13 @@ export default function LeaderboardPage() {
     const earned = stats.badges.filter((b) => b.earned).map((b) => b.emoji);
 
     const lines = [
-      "🍽️ My Eatrack Recap",
-      rank >= 0 ? `🏆 Rank: ${medalFor(rank)} of ${rows.length}` : null,
-      `⭐ Points: ${stats.points} (${stats.level})`,
-      `🔥 Current streak: ${stats.currentStreak} day${stats.currentStreak === 1 ? "" : "s"}`,
-      earned.length > 0 ? `🎖️ Badges: ${earned.join(" ")}` : null,
+      "My Eatrack Recap",
+      rank >= 0 ? `Rank: ${medalFor(rank)} of ${rows.length}` : null,
+      `Points: ${stats.points} (${stats.level})`,
+      `Current streak: ${stats.currentStreak} day${stats.currentStreak === 1 ? "" : "s"}`,
+      earned.length > 0 ? `Badges: ${earned.join(" ")}` : null,
       "",
-      "Track yours at Eatrack 🍛",
+      "Track yours at Eatrack",
     ].filter((line) => line !== null);
 
     try {
@@ -91,81 +92,67 @@ export default function LeaderboardPage() {
     }
   }
 
-  async function deleteAccount() {
-    const confirmed = window.confirm(
-      "Delete your account permanently? This removes all your meal entries, prices, and points. This can't be undone."
-    );
-
-    if (!confirmed) return;
-
-    const doubleConfirmed = window.confirm(
-      "Really sure? There's no way to recover this once it's done."
-    );
-
-    if (!doubleConfirmed) return;
-
-    const res = await fetch("/api/auth/delete-account", { method: "POST" });
-
-    if (!res.ok) {
-      alert("Something went wrong deleting your account. Try again.");
-      return;
-    }
-
-    router.push("/login");
-  }
-
   if (loading || !stats) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-slate-900">
         <p className="text-slate-400">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-white sm:p-6">
+    <main className="min-h-screen bg-white p-4 text-slate-900 sm:p-6">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🏆 Leaderboard
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+              Eatrack
             </p>
-            <h1 className="font-display mt-2 text-3xl font-extrabold">
-              Who&apos;s eating best?
+            <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
+              Leaderboard
             </h1>
           </div>
 
           <div className="flex gap-2">
             <button
-              onClick={() => router.push("/profile-setup")}
-              className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold"
+              onClick={() => router.push("/rewards")}
+              className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
             >
-              ✏️ Profile
+              <Gift className="h-4 w-4" />
+              Rewards
+            </button>
+            <button
+              onClick={() => router.push("/account")}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <Settings className="h-4 w-4" />
+              Account
             </button>
             <button
               onClick={() => router.push("/")}
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
-              ← Back
+              Back
             </button>
           </div>
         </div>
 
         {/* Your stats */}
-        <section className="mt-6 rounded-3xl border border-slate-800 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 text-center">
-          <p className="text-sm text-slate-400">{stats.level}</p>
-          <p className="font-display mt-1 text-5xl font-extrabold">
-            {stats.points} <span className="text-2xl text-amber-400">pts</span>
+        <section className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center">
+          <p className="text-sm text-slate-500">{stats.level}</p>
+          <p className="font-display mt-1 text-5xl font-semibold tracking-tight">
+            {stats.points} <span className="text-2xl text-slate-400">pts</span>
           </p>
-          <p className="mt-2 text-slate-400">
-            🔥 {stats.currentStreak} day{stats.currentStreak === 1 ? "" : "s"}{" "}
-            streak · best {stats.longestStreak}
+          <p className="mt-2 flex items-center justify-center gap-1.5 text-slate-500">
+            <Flame className="h-4 w-4 text-orange-500" />
+            {stats.currentStreak} day{stats.currentStreak === 1 ? "" : "s"} streak
+            · best {stats.longestStreak}
           </p>
         </section>
 
         {/* Badges */}
         <section className="mt-6">
-          <h2 className="font-display text-xl font-bold">🎖️ Badges</h2>
+          <h2 className="font-display text-xl font-semibold tracking-tight">Badges</h2>
 
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {stats.badges.map((badge) => (
@@ -173,12 +160,12 @@ export default function LeaderboardPage() {
                 key={badge.id}
                 className={`rounded-2xl border p-4 text-center ${
                   badge.earned
-                    ? "border-amber-700 bg-amber-950/40"
-                    : "border-slate-800 bg-slate-900 opacity-40"
+                    ? "border-blue-200 bg-blue-50"
+                    : "border-slate-200 bg-white opacity-40"
                 }`}
               >
                 <p className="text-3xl">{badge.emoji}</p>
-                <p className="mt-1 text-sm font-bold">{badge.title}</p>
+                <p className="mt-1 text-sm font-semibold">{badge.title}</p>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {badge.description}
                 </p>
@@ -188,11 +175,14 @@ export default function LeaderboardPage() {
         </section>
 
         {/* Leaderboard */}
-        <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <h2 className="font-display text-xl font-bold">
-            🌍 Everyone ({rows.length})
-          </h2>
-          <p className="mt-1 text-xs text-slate-500">
+        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-slate-400" />
+            <h2 className="font-display text-xl font-semibold tracking-tight">
+              Everyone ({rows.length})
+            </h2>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
             10 pts per meal logged · 50 pts per badge · 5 pts per streak day.
             Only names and points are shown.
           </p>
@@ -203,12 +193,12 @@ export default function LeaderboardPage() {
                 key={row.userId}
                 className={`flex items-center justify-between gap-3 rounded-xl border p-3 ${
                   row.isYou
-                    ? "border-emerald-700 bg-emerald-950/30"
-                    : "border-slate-800 bg-slate-950"
+                    ? "border-blue-200 bg-blue-50"
+                    : "border-slate-200 bg-white"
                 }`}
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="w-8 shrink-0 text-center font-bold">
+                  <span className="w-8 shrink-0 text-center font-semibold">
                     {medalFor(index)}
                   </span>
 
@@ -217,15 +207,15 @@ export default function LeaderboardPage() {
                       {row.displayName}
                       {row.isYou ? " (you)" : ""}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-400">
                       {row.level}
-                      {row.currentStreak > 0 ? ` · 🔥 ${row.currentStreak}` : ""}
+                      {row.currentStreak > 0 ? ` · ${row.currentStreak}🔥` : ""}
                       {row.badges.length > 0 ? ` · ${row.badges.join("")}` : ""}
                     </p>
                   </div>
                 </div>
 
-                <p className="shrink-0 font-bold text-amber-400">
+                <p className="shrink-0 font-semibold text-slate-900">
                   {row.points} pts
                 </p>
               </div>
@@ -235,18 +225,12 @@ export default function LeaderboardPage() {
 
         <button
           onClick={copyRecap}
-          className="mt-6 w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-3 font-bold text-slate-950 transition hover:scale-[1.01] active:scale-[0.98]"
+          className="mt-6 w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
         >
-          {copied ? "Copied! Paste it anywhere 🎉" : "📋 Copy Shareable Recap"}
-        </button>
-
-        <button
-          onClick={deleteAccount}
-          className="mt-4 w-full rounded-full border border-red-900 bg-red-950/30 px-5 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-950/50"
-        >
-          Delete Account
+          {copied ? "Copied — paste it anywhere" : "Copy Shareable Recap"}
         </button>
       </div>
     </main>
   );
 }
+

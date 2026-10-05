@@ -1,6 +1,6 @@
 import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { computeStats } from "@/lib/stats";
+import { computeStats, levelForPoints } from "@/lib/stats";
 
 type BoardRow = {
   userId: number;
@@ -37,12 +37,13 @@ async function buildBoard(): Promise<BoardRow[]> {
 
   const rows = users.map((user) => {
     const stats = computeStats(entriesByUser.get(user.id) ?? []);
+    const points = Math.max(0, stats.points - user.pointsSpent);
 
     return {
       userId: user.id,
       displayName: user.name?.trim() || "Anonymous eater",
-      points: stats.points,
-      level: stats.level,
+      points,
+      level: levelForPoints(points),
       currentStreak: stats.currentStreak,
       totalEntries: stats.totalEntries,
       badges: stats.badges.filter((b) => b.earned).map((b) => b.emoji),
@@ -80,3 +81,4 @@ export async function GET() {
 
   return Response.json({ rows });
 }
+

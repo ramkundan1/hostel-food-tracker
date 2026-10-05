@@ -2,11 +2,38 @@ import { NextResponse } from "next/server";
 import { db } from "@/prisma/db";
 import { getCurrentUserId, clearSession } from "@/lib/auth";
 
-export async function POST() {
+export async function POST(request: Request) {
   const userId = await getCurrentUserId();
 
   if (!userId) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const code = String(body.code ?? "").trim();
+
+  if (!code) {
+    return NextResponse.json(
+      { error: "Enter the code we emailed you." },
+      { status: 400 }
+    );
+  }
+
+  const user = await db.orm.public.User.where({ id: userId }).first();
+
+  if (!user || !user.deleteToken || user.deleteToken !== code) {
+    return NextResponse.json({ error: "That code isn't right." }, { status: 400 });
+  }
+
+  const expiresAt = user.deleteTokenExpiresAt
+    ? new Date(user.deleteTokenExpiresAt)
+    : null;
+
+  if (!expiresAt || expiresAt.getTime() < Date.now()) {
+    return NextResponse.json(
+      { error: "That code has expired. Request a new one." },
+      { status: 400 }
+    );
   }
 
   // Clean up everything tied to this user before removing the account
@@ -28,3 +55,4 @@ export async function POST() {
 
   return NextResponse.json({ success: true });
 }
+

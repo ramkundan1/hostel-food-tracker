@@ -11,7 +11,7 @@ function VerifiedBanner() {
 
   if (verified === "success") {
     return (
-      <p className="mb-6 rounded-xl border border-emerald-800 bg-emerald-950 p-3 text-sm text-emerald-300">
+      <p className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
         Your email is verified. You can log in now.
       </p>
     );
@@ -23,7 +23,7 @@ function VerifiedBanner() {
       : "That verification link is invalid. Request a new one below.";
 
   return (
-    <p className="mb-6 rounded-xl border border-amber-800 bg-amber-950 p-3 text-sm text-amber-300">
+    <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
       {message}
     </p>
   );
@@ -155,25 +155,25 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-          🍽️ Eatrack
+    <main className="flex min-h-screen items-center justify-center bg-white p-6 text-slate-900">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+          Eatrack
         </p>
 
-        <h1 className="font-display mt-2 text-3xl font-extrabold">
+        <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
           {mode === "login"
-            ? "Log in to your account"
+            ? "Log in"
             : mode === "register"
               ? "Create your account"
               : "Reset your password"}
         </h1>
 
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-slate-500">
           {mode === "login"
-            ? "Come see what you've been eating."
+            ? "Track your meals and manage shared costs."
             : mode === "register"
-              ? "Track it before your roommate \"forgets\" to pay."
+              ? "Get started tracking meals and spend."
               : "We'll email you a link to set a new one."}
         </p>
 
@@ -182,7 +182,7 @@ export default function LoginPage() {
         </Suspense>
 
         {registerMessage || forgotMessage ? (
-          <div className="mt-6 rounded-xl border border-emerald-800 bg-emerald-950 p-4 text-sm text-emerald-300">
+          <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
             {registerMessage || forgotMessage}
           </div>
         ) : (
@@ -193,7 +193,7 @@ export default function LoginPage() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Email"
               required
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
 
             {mode !== "forgot" && (
@@ -204,7 +204,7 @@ export default function LoginPage() {
                 placeholder="Password"
                 minLength={8}
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400"
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             )}
 
@@ -212,14 +212,14 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setMode("forgot")}
-                className="-mt-2 block text-sm text-slate-400 hover:text-slate-300"
+                className="-mt-2 block text-sm text-slate-500 hover:text-slate-700"
               >
                 Forgot password?
               </button>
             )}
 
             {error && (
-              <div className="rounded-lg border border-red-900 bg-red-950 p-3 text-sm text-red-300">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 <p>{error}</p>
 
                 {needsVerification && (
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={handleResend}
                     disabled={resending}
-                    className="mt-2 font-semibold text-emerald-400 underline disabled:opacity-50"
+                    className="mt-2 font-medium text-blue-600 underline disabled:opacity-50"
                   >
                     {resending ? "Sending..." : "Resend verification email"}
                   </button>
@@ -236,7 +236,7 @@ export default function LoginPage() {
             )}
 
             {resendMessage && (
-              <p className="rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300">
+              <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
                 {resendMessage}
               </p>
             )}
@@ -244,7 +244,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-3 font-bold text-slate-950 transition hover:scale-[1.01] hover:from-amber-300 hover:to-orange-400 active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
               {loading
                 ? "Please wait..."
@@ -262,7 +262,7 @@ export default function LoginPage() {
           onClick={() => {
             setMode(mode === "register" || mode === "forgot" ? "login" : "register");
           }}
-          className="mt-5 w-full text-sm font-medium text-slate-400 hover:text-slate-300"
+          className="mt-5 w-full text-sm font-medium text-slate-500 hover:text-slate-700"
         >
           {mode === "login"
             ? "Don't have an account? Create one"
@@ -274,3 +274,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

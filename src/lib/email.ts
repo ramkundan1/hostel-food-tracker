@@ -125,3 +125,52 @@ export async function sendPasswordResetEmail(
     link
   );
 }
+
+export async function sendDeleteAccountCode(
+  email: string,
+  code: string
+): Promise<{ sent: boolean }> {
+  return sendEmail(
+    email,
+    "Confirm account deletion — Eatrack",
+    `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>Delete your account?</h2>
+        <p>Enter this code in Eatrack to permanently delete your account and all its data. This code expires in 15 minutes.</p>
+        <p style="margin: 24px 0; font-size: 32px; font-weight: bold; letter-spacing: 6px;">${code}</p>
+        <p style="color:#64748b;font-size:13px;">If you didn't request this, ignore this email — your account is safe and nothing will change.</p>
+      </div>
+    `,
+    "account deletion code",
+    code
+  );
+}
+
+export async function sendFeedbackEmail(
+  fromEmail: string,
+  message: string
+): Promise<{ sent: boolean }> {
+  const supportEmail = process.env.SUPPORT_EMAIL;
+
+  if (!supportEmail) {
+    console.log(
+      `[email] SUPPORT_EMAIL not set — feedback from ${fromEmail}: ${message}`
+    );
+    return { sent: false };
+  }
+
+  return sendEmail(
+    supportEmail,
+    `Eatrack feedback from ${fromEmail}`,
+    `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>New feedback</h2>
+        <p><strong>From:</strong> ${fromEmail}</p>
+        <p style="white-space: pre-wrap; border-left: 3px solid #f59e0b; padding-left: 12px;">${message}</p>
+      </div>
+    `,
+    "feedback message",
+    message
+  );
+}
+

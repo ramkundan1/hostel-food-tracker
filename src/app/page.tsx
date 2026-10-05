@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
-import { Utensils, Egg, Milk, Drumstick } from "lucide-react";
+import { Utensils, Egg, Milk, Drumstick, Trophy, Soup, Moon } from "lucide-react";
 
 type Prices = {
   meal: number | null;
@@ -137,7 +137,8 @@ const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [savingPrices, setSavingPrices] = useState(false);
-  const [savingMeal, setSavingMeal] = useState(false);
+  const [savingLunch, setSavingLunch] = useState(false);
+  const [savingDinner, setSavingDinner] = useState(false);
 
   const [showPriceSetup, setShowPriceSetup] = useState(false);
   const [showMonthlyReport, setShowMonthlyReport] = useState(false);
@@ -453,7 +454,8 @@ const router = useRouter();
       return;
     }
 
-    setSavingMeal(true);
+    const setSaving = mealType === "lunch" ? setSavingLunch : setSavingDinner;
+    setSaving(true);
 
     const body = {
       mealType,
@@ -493,7 +495,7 @@ const router = useRouter();
       // problem (e.g. pick a different date) and retry, instead
       // of silently wiping out what they entered.
       setError(data.error ?? "Failed to save meal.");
-      setSavingMeal(false);
+      setSaving(false);
       return;
     }
 
@@ -518,14 +520,14 @@ const router = useRouter();
 
     setEditingEntryId(null);
     setEditingMealType(null);
-    setSavingMeal(false);
+    setSaving(false);
 
     setSuccess(
       wasEditing
-        ? "✏️ Updated — nice save."
+        ? "Entry updated."
         : mealType === "lunch"
-          ? "🎉 Lunch logged. Stomach approves."
-          : "🎉 Dinner logged. Sleep tight."
+          ? "Lunch logged."
+          : "Dinner logged."
     );
 
     setTimeout(() => setSuccess(null), 3000);
@@ -642,7 +644,7 @@ const router = useRouter();
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-slate-900">
         <p className="text-slate-400">Loading...</p>
       </main>
     );
@@ -650,11 +652,11 @@ const router = useRouter();
 
   if (showPriceSetup) {
     return (
-      <main className="min-h-screen bg-slate-950 p-6 text-white">
+      <main className="min-h-screen bg-white p-6 text-slate-900">
         <div className="mx-auto max-w-2xl pt-10">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🍽️ Eatrack
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+              Eatrack
             </p>
 
             {prices.meal !== null && (
@@ -668,15 +670,15 @@ const router = useRouter();
                     chicken: null,
                   });
                 }}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+                className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
               >
-                ← Back
+                Back
               </button>
             )}
           </div>
 
-          <h1 className="font-display mt-3 text-4xl font-extrabold">
-            What&apos;s the damage per meal? 💸
+          <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight">
+            Set your meal prices
           </h1>
 
           <p className="mt-2 text-slate-400">
@@ -694,7 +696,7 @@ const router = useRouter();
             ).map(([key, label]) => (
               <div
                 key={key}
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
               >
                 <p className="font-semibold">{label}</p>
 
@@ -705,7 +707,7 @@ const router = useRouter();
                     updatePrice(key, e.target.value)
                   }
                   placeholder="Enter price"
-                  className="mt-3 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             ))}
@@ -714,7 +716,7 @@ const router = useRouter();
           <button
             onClick={savePrices}
             disabled={savingPrices}
-            className="mt-6 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-6 py-3 font-bold text-slate-950 transition hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+            className="mt-6 rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
           >
             {savingPrices ? "Saving..." : "Save Prices"}
           </button>
@@ -743,16 +745,16 @@ const router = useRouter();
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-white sm:p-6">
+    <main className="min-h-screen bg-white p-4 text-slate-900 sm:p-6">
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              🍽️ Eatrack
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+              Eatrack
             </p>
 
-            <h1 className="font-display mt-2 text-4xl font-extrabold tracking-tight">
-              Daily meals, without the math.
+            <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight">
+              Track every meal. Know every cost.
             </h1>
 
             <p className="mt-2 text-slate-400">
@@ -763,23 +765,24 @@ const router = useRouter();
           <div className="flex gap-2">
             <button
               onClick={() => setShowPriceSetup(true)}
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
             >
               Update Prices
             </button>
 
             <button
               onClick={() => setShowMonthlyReport(true)}
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold hover:bg-slate-800"
+              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
             >
               Monthly Report
             </button>
 
             <button
               onClick={() => router.push("/leaderboard")}
-              className="rounded-xl border border-amber-700 bg-amber-950/40 px-4 py-2 text-sm font-semibold text-amber-300 hover:bg-amber-900/40"
+              className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
             >
-              🏆 Leaderboard
+              <Trophy className="h-4 w-4" />
+              Leaderboard
             </button>
 
             <button
@@ -789,14 +792,14 @@ const router = useRouter();
                 });
                 router.push("/login");
               }}
-              className="rounded-xl border border-red-700 bg-red-950 px-4 py-2 text-sm font-semibold text-red-200 hover:bg-red-900"
+              className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
             >
               Logout
             </button>
           </div>
         </header>
 
-        <section className="mt-8 rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-7">
+        <section className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-7">
           <p className="text-sm font-medium text-slate-400">
             Spent So Far
           </p>
@@ -810,7 +813,7 @@ const router = useRouter();
           </p>
         </section>
 
-        <section className="mt-7 rounded-3xl border border-slate-800 bg-slate-900 p-5">
+        <section className="mt-7 rounded-3xl border border-slate-200 bg-slate-50 p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold">Entry date (Nepali)</p>
@@ -827,7 +830,7 @@ const router = useRouter();
               value={nepaliYear}
               disabled={editingEntryId !== null}
               onChange={(e) => setNepaliYear(Number(e.target.value))}
-              className="rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
             >
               {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
                 (year) => (
@@ -842,7 +845,7 @@ const router = useRouter();
               value={nepaliMonthIndex}
               disabled={editingEntryId !== null}
               onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
-              className="rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
             >
               {NEPALI_MONTHS.map((name, index) => (
                 <option key={name} value={index}>
@@ -855,7 +858,7 @@ const router = useRouter();
               value={nepaliDay}
               disabled={editingEntryId !== null}
               onChange={(e) => setNepaliDay(Number(e.target.value))}
-              className="rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400 disabled:opacity-50"
+              className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
             >
               {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
                 <option key={day} value={day}>
@@ -867,7 +870,7 @@ const router = useRouter();
 
           <p className="mt-3 text-xs text-slate-500">
             {editingEntryId === null && selectedDateInfo.invalidReason ? (
-              <span className="text-red-400">
+              <span className="text-red-600">
                 {selectedDateInfo.invalidReason}
               </span>
             ) : (
@@ -900,7 +903,7 @@ const router = useRouter();
               saveMeal("lunch", lunch, lunchPeople)
             }
             onCancelEdit={() => cancelEdit("lunch")}
-            saving={savingMeal}
+            saving={savingLunch}
             cost={calculateCost(lunch, lunchPeople)}
             editing={editingMealType === "lunch"}
             error={lunchError}
@@ -930,7 +933,7 @@ const router = useRouter();
               saveMeal("dinner", dinner, dinnerPeople)
             }
             onCancelEdit={() => cancelEdit("dinner")}
-            saving={savingMeal}
+            saving={savingDinner}
             cost={calculateCost(dinner, dinnerPeople)}
             editing={editingMealType === "dinner"}
             error={dinnerError}
@@ -983,25 +986,26 @@ function MealCard({
   success: string | null;
 }) {
   const isLunch = title.toLowerCase() === "lunch";
-  const emoji = isLunch ? "🍛" : "🌙";
+  const MealIcon = isLunch ? Soup : Moon;
   const accentBorder = isLunch ? "border-l-amber-400" : "border-l-indigo-400";
 
   return (
     <section
-      className={`rounded-3xl border border-slate-800 border-l-4 ${accentBorder} bg-slate-900 p-6 shadow-2xl`}
+      className={`rounded-3xl border border-slate-200 border-l-4 ${accentBorder} bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]`}
     >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-500">Meal</p>
-          <h2 className="font-display text-2xl font-bold">
-            {emoji} {title}
+          <h2 className="font-display flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <MealIcon className="h-5 w-5 text-slate-400" />
+            {title}
           </h2>
         </div>
 
         {cost > 0 && (
           <div className="text-right">
             <p className="text-xs text-slate-500">Total</p>
-            <p className="font-bold text-emerald-400">
+            <p className="font-semibold text-emerald-600">
               Rs. {cost.toFixed(2)}
             </p>
           </div>
@@ -1009,7 +1013,7 @@ function MealCard({
       </div>
 
       {editing && (
-        <div className="mt-4 flex items-center justify-between rounded-xl border border-amber-800 bg-amber-950 p-3 text-sm text-amber-300">
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
           <span>Editing an existing entry.</span>
           <button
             type="button"
@@ -1022,14 +1026,14 @@ function MealCard({
       )}
 
       {success && (
-        <div className="animate-pop-in mt-4 rounded-xl border border-emerald-800 bg-emerald-950 p-3 text-sm text-emerald-300">
+        <div className="animate-pop-in mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
           {success}
         </div>
       )}
 
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-900 bg-red-950 p-3 text-sm text-red-300">
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -1039,14 +1043,14 @@ function MealCard({
         className={
           "mt-6 flex w-full items-center justify-between rounded-2xl border p-4 transition " +
           (selection.meal
-            ? "border-emerald-400 bg-emerald-400/10"
-            : "border-slate-700 bg-slate-950")
+            ? "border-emerald-500 bg-emerald-50"
+            : "border-slate-300 bg-white")
         }
       >
         <div>
           <p className="font-semibold">Normal Meal</p>
           <p className="text-xs text-slate-500">
-            Your regular hostel meal
+            Your regular meal
           </p>
         </div>
 
@@ -1055,7 +1059,7 @@ function MealCard({
             "flex h-6 w-6 items-center justify-center rounded-full border " +
             (selection.meal
               ? "border-emerald-400 bg-emerald-400 text-slate-950"
-              : "border-slate-600")
+              : "border-slate-300")
           }
         >
           {selection.meal ? "✓" : ""}
@@ -1064,7 +1068,7 @@ function MealCard({
 
       <button
         onClick={onExtraToggle}
-        className="mt-3 flex w-full items-center justify-between rounded-2xl border border-slate-700 bg-slate-950 p-4 text-left hover:border-slate-500"
+        className="mt-3 flex w-full items-center justify-between rounded-2xl border border-slate-300 bg-white p-4 text-left hover:border-slate-400"
       >
         <div>
           <p className="font-semibold">Extra</p>
@@ -1079,7 +1083,7 @@ function MealCard({
       </button>
 
       {extraOpen && (
-        <div className="mt-3 space-y-2 rounded-2xl border border-slate-800 bg-slate-950 p-3">
+        <div className="mt-3 space-y-2 rounded-2xl border border-slate-200 bg-white p-3">
           {(
             [
               ["egg", "Egg"],
@@ -1093,8 +1097,8 @@ function MealCard({
               className={
                 "flex w-full items-center justify-between rounded-xl border p-3 " +
                 (selection[key]
-                  ? "border-emerald-400 bg-emerald-400/10"
-                  : "border-slate-800")
+                  ? "border-emerald-500 bg-emerald-50"
+                  : "border-slate-200")
               }
             >
               <span>{label}</span>
@@ -1103,7 +1107,7 @@ function MealCard({
                   "flex h-5 w-5 items-center justify-center rounded-full border " +
                   (selection[key]
                     ? "border-emerald-400 bg-emerald-400 text-slate-950"
-                    : "border-slate-600")
+                    : "border-slate-300")
                 }
               >
                 {selection[key] ? "✓" : ""}
@@ -1113,7 +1117,7 @@ function MealCard({
 
           <button
             onClick={onAdditionalToggle}
-            className="flex w-full items-center justify-between rounded-xl border border-slate-800 p-3"
+            className="flex w-full items-center justify-between rounded-xl border border-slate-200 p-3"
           >
             <div className="text-left">
               <p className="font-semibold">Additional</p>
@@ -1126,7 +1130,7 @@ function MealCard({
           </button>
 
           {additionalOpen && (
-            <div className="space-y-4 rounded-xl border border-slate-800 p-4">
+            <div className="space-y-4 rounded-xl border border-slate-200 p-4">
               <div>
                 <label className="text-sm text-slate-400">
                   Number of additional people
@@ -1139,7 +1143,7 @@ function MealCard({
                       onPeopleCountChange(people.length - 1)
                     }
                     disabled={people.length === 0}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-xl font-bold disabled:opacity-30"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-xl font-bold disabled:opacity-30"
                   >
                     −
                   </button>
@@ -1154,7 +1158,7 @@ function MealCard({
                       onPeopleCountChange(people.length + 1)
                     }
                     disabled={people.length === 10}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-xl font-bold disabled:opacity-30"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-xl font-bold disabled:opacity-30"
                   >
                     +
                   </button>
@@ -1164,7 +1168,7 @@ function MealCard({
               {people.map((person, index) => (
                 <div
                   key={index}
-                  className="rounded-xl border border-slate-800 p-3"
+                  className="rounded-xl border border-slate-200 p-3"
                 >
                   <p className="mb-3 text-sm font-semibold">
                     Person {index + 1}
@@ -1187,8 +1191,8 @@ function MealCard({
                         className={
                           "rounded-lg border p-2 text-sm " +
                           (person[key]
-                            ? "border-emerald-400 bg-emerald-400/10"
-                            : "border-slate-800")
+                            ? "border-emerald-500 bg-emerald-50"
+                            : "border-slate-200")
                         }
                       >
                         {person[key] ? "✓ " : ""}
@@ -1206,13 +1210,13 @@ function MealCard({
       <button
         onClick={onSave}
         disabled={saving}
-        className="mt-5 w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-3 font-bold text-slate-950 transition hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+        className="mt-5 w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
       >
         {saving
-          ? "Hang on..."
+          ? "Saving..."
           : editing
-            ? `Update ${title} ✏️`
-            : `Log ${title} ${emoji}`}
+            ? `Update ${title}`
+            : `Log ${title}`}
       </button>
     </section>
   );
@@ -1305,24 +1309,24 @@ function MonthlyReport({
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-white sm:p-6">
+    <main className="min-h-screen bg-white p-4 text-slate-900 sm:p-6">
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-              📊 Report
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+              Eatrack
             </p>
 
-            <h1 className="font-display mt-2 text-3xl font-extrabold">
+            <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
               Monthly History
             </h1>
           </div>
 
           <button
             onClick={onBack}
-            className="no-print rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 font-semibold"
+            className="no-print rounded-xl border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
           >
-            ← Back
+            Back
           </button>
         </div>
 
@@ -1333,20 +1337,20 @@ function MonthlyReport({
               onClick={() =>
                 onOpenMonth(month.nepaliYear, month.nepaliMonth)
               }
-              className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 p-4 text-left hover:border-slate-600"
+              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left hover:border-slate-400"
             >
               <span className="font-semibold">
                 {formatNepaliMonth(month.nepaliYear, month.nepaliMonth)}
               </span>
 
-              <span className="text-sm text-emerald-400">
+              <span className="text-sm text-emerald-600">
                 View →
               </span>
             </button>
           ))}
         </div>
 
-        <section className="mt-7 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+        <section className="mt-7 rounded-3xl border border-slate-200 bg-slate-50 p-6">
           <p className="text-sm text-slate-500">
             {selectedMonth
               ? "Selected month"
@@ -1391,20 +1395,20 @@ function MonthlyReport({
 
         <section className="mt-7 no-print">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold">🧾 Meal Records</h2>
+            <h2 className="font-display text-xl font-semibold tracking-tight">Meal Records</h2>
 
             <div className="flex gap-2">
               <button
                 onClick={exportCsv}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold hover:bg-slate-800"
+                className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-semibold hover:bg-slate-100"
               >
-                ⬇️ CSV
+                Export CSV
               </button>
               <button
                 onClick={() => window.print()}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold hover:bg-slate-800"
+                className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-semibold hover:bg-slate-100"
               >
-                🖨️ Print / PDF
+                Print / Save PDF
               </button>
             </div>
           </div>
@@ -1419,7 +1423,7 @@ function MonthlyReport({
               return (
                 <div
                   key={day}
-                  className="rounded-2xl border border-slate-800 bg-slate-900"
+                  className="rounded-2xl border border-slate-200 bg-slate-50"
                 >
                   <button
                     onClick={() =>
@@ -1442,7 +1446,7 @@ function MonthlyReport({
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <p className="font-bold text-emerald-400">
+                      <p className="font-bold text-emerald-600">
                         Rs. {total.toFixed(2)}
                       </p>
 
@@ -1453,11 +1457,11 @@ function MonthlyReport({
                   </button>
 
                   {isExpanded && (
-                    <div className="space-y-4 border-t border-slate-800 p-5 pt-4">
+                    <div className="space-y-4 border-t border-slate-200 p-5 pt-4">
                       {entries.map((entry) => (
                         <div
                           key={entry.id}
-                          className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+                          className="rounded-xl border border-slate-200 bg-white p-4"
                         >
                           <div className="flex items-center justify-between gap-3">
                             <p className="font-bold capitalize">
@@ -1465,7 +1469,7 @@ function MonthlyReport({
                             </p>
 
                             <div className="text-right">
-                              <p className="font-bold text-emerald-400">
+                              <p className="font-bold text-emerald-600">
                                 Rs. {entry.totalCost.toFixed(2)}
                               </p>
 
@@ -1479,7 +1483,7 @@ function MonthlyReport({
 
                                 <button
                                   onClick={() => onDelete(entry)}
-                                  className="text-sm text-red-400 underline"
+                                  className="text-sm text-red-600 underline"
                                 >
                                   Delete
                                 </button>
@@ -1487,7 +1491,7 @@ function MonthlyReport({
                             </div>
                           </div>
 
-                          <p className="mt-3 text-sm text-slate-300">
+                          <p className="mt-3 text-sm text-slate-600">
                             {[
                               entry.meal ? "Normal Meal" : "",
                               entry.egg ? "Egg" : "",
@@ -1499,7 +1503,7 @@ function MonthlyReport({
                           </p>
 
                           {entry.additionalPeople.length > 0 && (
-                            <div className="mt-4 border-t border-slate-800 pt-4">
+                            <div className="mt-4 border-t border-slate-200 pt-4">
                               <p className="text-sm font-semibold text-slate-400">
                                 Additional people:{" "}
                                 {entry.additionalPeople.length}
@@ -1510,7 +1514,7 @@ function MonthlyReport({
                                   (person, index) => (
                                     <div
                                       key={index}
-                                      className="rounded-lg bg-slate-900 p-3 text-sm text-slate-300"
+                                      className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600"
                                     >
                                       <span className="font-semibold">
                                         Person {index + 1}:
@@ -1542,8 +1546,8 @@ function MonthlyReport({
             })}
 
             {entriesByDay.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-800 p-8 text-center text-slate-500">
-                No meal records yet. Either you fasted all month, or you forgot to log it 👀
+              <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-500">
+                No meal records yet this month.
               </div>
             )}
           </div>
@@ -1563,7 +1567,7 @@ function ReportCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
       <div className="flex items-center gap-2 text-slate-500">
         {icon}
         <p className="text-sm">{title}</p>
@@ -1572,3 +1576,4 @@ function ReportCard({
     </div>
   );
 }
+

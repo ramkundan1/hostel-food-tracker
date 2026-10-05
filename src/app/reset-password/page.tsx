@@ -17,7 +17,7 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="rounded-xl border border-amber-800 bg-amber-950 p-4 text-sm text-amber-300">
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
         This link is missing its reset token. Go back to the login page and
         request a new password reset link.
       </div>
@@ -61,8 +61,8 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-emerald-800 bg-emerald-950 p-4 text-sm text-emerald-300">
-        🎉 Password updated. Taking you to the login page...
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+        Password updated. Taking you to the login page...
       </div>
     );
   }
@@ -76,7 +76,7 @@ function ResetPasswordForm() {
         placeholder="New password"
         minLength={8}
         required
-        className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400"
+        className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
 
       <input
@@ -86,18 +86,18 @@ function ResetPasswordForm() {
         placeholder="Confirm new password"
         minLength={8}
         required
-        className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-emerald-400"
+        className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
 
       {error && (
-        <div className="rounded-lg border border-red-900 bg-red-950 p-3 text-sm text-red-300">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
 
           {error.toLowerCase().includes("expired") ||
           error.toLowerCase().includes("invalid") ? (
             <Link
               href="/login"
-              className="mt-2 block font-semibold text-emerald-400 underline"
+              className="mt-2 block font-medium text-blue-600 underline"
             >
               Back to login to request a new link
             </Link>
@@ -108,7 +108,7 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-3 font-bold text-slate-950 transition hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+        className="w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
       >
         {loading ? "Please wait..." : "Update Password"}
       </button>
@@ -118,18 +118,18 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-          🍽️ Eatrack
+    <main className="flex min-h-screen items-center justify-center bg-white p-6 text-slate-900">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+          Eatrack
         </p>
 
-        <h1 className="font-display mt-2 text-3xl font-extrabold">
+        <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
           Choose a new password
         </h1>
 
-        <p className="mt-1 text-sm text-slate-400">
-          Make it a good one — no more forgetting this time.
+        <p className="mt-1 text-sm text-slate-500">
+          Pick something you'll remember this time.
         </p>
 
         <div className="mt-8">
@@ -141,3 +141,4 @@ export default function ResetPasswordPage() {
     </main>
   );
 }
+

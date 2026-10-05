@@ -828,8 +828,92 @@
                   "kind": "scalar"
                 }
               },
+              "autoDinnerChicken": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoDinnerCurd": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoDinnerEgg": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoDinnerMeal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoEntryCredits": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoEntryEnabled": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoLunchChicken": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoLunchCurd": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoLunchEgg": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "autoLunchMeal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "deleteToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "deleteTokenExpiresAt": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
@@ -863,6 +947,13 @@
                   "kind": "scalar"
                 }
               },
+              "lastStreakRewardTier": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "lockedUntil": {
                 "nullable": true,
                 "type": {
@@ -881,6 +972,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "pointsSpent": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -980,8 +1078,44 @@
                 "age": {
                   "column": "age"
                 },
+                "autoDinnerChicken": {
+                  "column": "autoDinnerChicken"
+                },
+                "autoDinnerCurd": {
+                  "column": "autoDinnerCurd"
+                },
+                "autoDinnerEgg": {
+                  "column": "autoDinnerEgg"
+                },
+                "autoDinnerMeal": {
+                  "column": "autoDinnerMeal"
+                },
+                "autoEntryCredits": {
+                  "column": "autoEntryCredits"
+                },
+                "autoEntryEnabled": {
+                  "column": "autoEntryEnabled"
+                },
+                "autoLunchChicken": {
+                  "column": "autoLunchChicken"
+                },
+                "autoLunchCurd": {
+                  "column": "autoLunchCurd"
+                },
+                "autoLunchEgg": {
+                  "column": "autoLunchEgg"
+                },
+                "autoLunchMeal": {
+                  "column": "autoLunchMeal"
+                },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "deleteToken": {
+                  "column": "deleteToken"
+                },
+                "deleteTokenExpiresAt": {
+                  "column": "deleteTokenExpiresAt"
                 },
                 "email": {
                   "column": "email"
@@ -995,6 +1129,9 @@
                 "id": {
                   "column": "id"
                 },
+                "lastStreakRewardTier": {
+                  "column": "lastStreakRewardTier"
+                },
                 "lockedUntil": {
                   "column": "lockedUntil"
                 },
@@ -1003,6 +1140,9 @@
                 },
                 "passwordHash": {
                   "column": "passwordHash"
+                },
+                "pointsSpent": {
+                  "column": "pointsSpent"
                 },
                 "resetToken": {
                   "column": "resetToken"
@@ -1671,6 +1811,96 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "autoDinnerChicken": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoDinnerCurd": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoDinnerEgg": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoDinnerMeal": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoEntryCredits": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "autoEntryEnabled": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoLunchChicken": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoLunchCurd": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoLunchEgg": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "autoLunchMeal": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -1679,6 +1909,16 @@
                   },
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "deleteToken": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "deleteTokenExpiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
                 },
                 "email": {
                   "codecId": "pg/text@1",
@@ -1712,6 +1952,15 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "lastStreakRewardTier": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "lockedUntil": {
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
@@ -1725,6 +1974,15 @@
                 "passwordHash": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": false
+                },
+                "pointsSpent": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
                   "nullable": false
                 },
                 "resetToken": {
@@ -1779,7 +2037,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6b3a869babb05b5020e4c869803d9390c69f8b2bce5e8424bd448838bf3bc2bb"
+    "storageHash": "78960ecab322dbf2ff4e75b8efb8135d3760d4c7b3c179b616c6bd6a1421790f"
   },
   "execution": {
     "executionHash": "9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24",
