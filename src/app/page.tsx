@@ -303,10 +303,10 @@ const router = useRouter();
       inputPrices.egg === null ||
       inputPrices.curd === null ||
       inputPrices.chicken === null ||
-      inputPrices.meal < 0 ||
-      inputPrices.egg < 0 ||
-      inputPrices.curd < 0 ||
-      inputPrices.chicken < 0
+      inputPrices.meal <= 0 ||
+      inputPrices.egg <= 0 ||
+      inputPrices.curd <= 0 ||
+      inputPrices.chicken <= 0
     ) {
       alert("Please enter valid prices for all items.");
       return;
