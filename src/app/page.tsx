@@ -303,10 +303,10 @@ const router = useRouter();
       inputPrices.egg === null ||
       inputPrices.curd === null ||
       inputPrices.chicken === null ||
-      inputPrices.meal <= 0 ||
-      inputPrices.egg <= 0 ||
-      inputPrices.curd <= 0 ||
-      inputPrices.chicken <= 0
+      inputPrices.meal < 0 ||
+      inputPrices.egg < 0 ||
+      inputPrices.curd < 0 ||
+      inputPrices.chicken < 0
     ) {
       alert("Please enter valid prices for all items.");
       return;
@@ -656,7 +656,7 @@ const router = useRouter();
         <div className="mx-auto max-w-2xl pt-10">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              Eatrack
+              Eatracker
             </p>
 
             {prices.meal !== null && (
@@ -750,11 +750,11 @@ const router = useRouter();
         <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              Eatrack
+              Eatracker
             </p>
 
             <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight">
-              Track every meal. Know every cost.
+              Track your meal.
             </h1>
 
             <p className="mt-2 text-slate-400">
@@ -1314,7 +1314,7 @@ function MonthlyReport({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              Eatrack
+              Eatracker
             </p>
 
             <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
