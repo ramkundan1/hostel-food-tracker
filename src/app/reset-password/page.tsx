@@ -118,10 +118,10 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white p-6 text-slate-900">
+    <main className="flex min-h-dvh items-center justify-center bg-white p-6 text-slate-900">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-          Eatrack
+          e-tracker
         </p>
 
         <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
@@ -141,4 +141,3 @@ export default function ResetPasswordPage() {
     </main>
   );
 }
-

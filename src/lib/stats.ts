@@ -4,6 +4,7 @@
 export type StatsEntry = {
   date: string;
   chicken: boolean;
+  createdAt?: string;
 };
 
 export type Badge = {
@@ -22,7 +23,27 @@ export type UserStats = {
   badges: Badge[];
   points: number;
   level: string;
+  backdatedCount: number;
 };
+
+function utcDay(iso: string): string {
+  return new Date(iso).toISOString().slice(0, 10);
+}
+
+// An entry only earns points, streak and badge progress when it was logged for
+// the day it was created (or a later one). Logging a past date after the fact is
+// still allowed for record keeping, but it doesn't count, so nobody can farm
+// points or a streak by back-filling a pile of old days in one sitting.
+function isEligible(entry: StatsEntry): boolean {
+  if (!entry.createdAt) return true;
+
+  const chosen = new Date(entry.date);
+  const created = new Date(entry.createdAt);
+
+  if (isNaN(chosen.getTime()) || isNaN(created.getTime())) return true;
+
+  return utcDay(entry.date) >= utcDay(entry.createdAt);
+}
 
 function dateOnly(isoString: string): string {
   const d = new Date(isoString);
@@ -39,7 +60,10 @@ function addDays(dateOnlyStr: string, days: number): string {
 }
 
 // Points: 10 per meal logged, 50 per badge earned, 5 per day of current streak.
-export function computeStats(entries: StatsEntry[]): UserStats {
+export function computeStats(allEntries: StatsEntry[]): UserStats {
+  const entries = allEntries.filter(isEligible);
+  const backdatedCount = allEntries.length - entries.length;
+
   const distinctDays = Array.from(
     new Set(entries.map((entry) => dateOnly(entry.date)))
   ).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0)); // newest first
@@ -103,6 +127,7 @@ export function computeStats(entries: StatsEntry[]): UserStats {
     badges,
     points,
     level: levelForPoints(points),
+    backdatedCount,
   };
 }
 
@@ -117,4 +142,3 @@ export function levelForPoints(points: number): string {
         ? "Regular 🍛"
         : "Newbie 🐣";
 }
-

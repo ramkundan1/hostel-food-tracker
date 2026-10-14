@@ -48,6 +48,7 @@ export async function POST(request: Request) {
 
   await db.orm.public.FoodEntry.where({ userId }).deleteAll();
   await db.orm.public.FoodPrice.where({ userId }).deleteAll();
+  await db.orm.public.Expense.where({ userId }).deleteAll();
   await db.orm.public.GroupMember.where({ userId }).deleteAll();
   await db.orm.public.User.where({ id: userId }).deleteAll();
 
@@ -55,4 +56,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ success: true });
 }
-

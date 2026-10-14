@@ -17,7 +17,12 @@ export async function GET(request: Request) {
   const nepaliMonth = today.getMonth();
   const nepaliDate = today.getDate();
   const dayKey = `${nepaliYear}-${nepaliMonth}-${nepaliDate}`;
-  const entryDate = today.toJsDate().toISOString();
+  // The job runs in the evening Nepal time, when the UTC date and the Nepali
+  // date are the same calendar day, so the stored date always equals the day
+  // the row is created.
+  const entryDate = new Date(
+    new Date().toISOString().slice(0, 10) + "T00:00:00.000Z"
+  ).toISOString();
 
   const users = await db.orm.public.User
     .where({ autoEntryEnabled: true })
@@ -109,4 +114,3 @@ export async function GET(request: Request) {
 
   return Response.json({ usersProcessed, entriesCreated });
 }
-

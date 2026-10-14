@@ -1,17 +1,16 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Brand from "@/components/Brand";
+import PageNav from "@/components/PageNav";
+import ProfileForm from "@/components/ProfileForm";
 
 export default function ProfileSetupPage() {
   const router = useRouter();
 
   const [checking, setChecking] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -24,8 +23,6 @@ export default function ProfileSetupPage() {
 
       const data = await res.json();
 
-      setName(data.name ?? "");
-      setAge(data.age ? String(data.age) : "");
       setHasProfile(Boolean(data.hasProfile));
       setChecking(false);
     }
@@ -33,55 +30,21 @@ export default function ProfileSetupPage() {
     load();
   }, [router]);
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    setError("");
-    setLoading(true);
-
-    const res = await fetch("/api/profile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, age: Number(age) }),
-    });
-
-    const data = await res.json();
-
-    setLoading(false);
-
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
-      return;
-    }
-
-    router.push("/");
-    router.refresh();
-  }
-
   if (checking) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-white text-slate-900">
-        <p className="text-slate-500">Loading...</p>
+      <main className="flex min-h-dvh items-center justify-center bg-white text-slate-900">
+        <p className="text-slate-400">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white p-6 text-slate-900">
+    <main className="flex min-h-dvh items-center justify-center bg-white p-6 text-slate-900">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-            Eatrack
-          </p>
-
-          {hasProfile && (
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Back
-            </button>
-          )}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          {/* While profile setup is still mandatory, the brand is not a link. */}
+          <Brand linked={hasProfile} />
+          {hasProfile && <PageNav />}
         </div>
 
         <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
@@ -89,49 +52,21 @@ export default function ProfileSetupPage() {
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          Your name is shown on the public leaderboard, so a nickname is fine.
-          Your age is never shown to anyone.
+          Please use your real first and last name. The leaderboard shows only
+          your first name and the initial of your last name. Your age is never
+          shown to anyone.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Name or nickname"
-            required
-            minLength={2}
-            maxLength={30}
-            className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        <div className="mt-6">
+          <ProfileForm
+            submitLabel={hasProfile ? "Save" : "Continue"}
+            onSaved={() => {
+              router.push("/");
+              router.refresh();
+            }}
           />
-
-          <input
-            type="number"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            placeholder="Age"
-            required
-            min={5}
-            max={120}
-            className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : hasProfile ? "Save" : "Continue"}
-          </button>
-        </form>
+        </div>
       </div>
     </main>
   );
 }
-

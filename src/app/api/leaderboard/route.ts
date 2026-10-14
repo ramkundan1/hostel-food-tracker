@@ -16,6 +16,22 @@ type BoardRow = {
 // for a minute and reused. It lives in each server instance's memory; anyone
 // opening the page within that minute gets it instantly.
 const CACHE_MS = 60 * 1000;
+
+// Everyone can see the leaderboard, so only the first name and the initial of
+// the last name are shown — never the full name.
+function publicName(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+}): string {
+  const first = user.firstName?.trim();
+  const last = user.lastName?.trim();
+
+  if (first && last) return `${first} ${last.charAt(0).toUpperCase()}.`;
+  if (first) return first;
+
+  return user.name?.trim() || "Anonymous eater";
+}
 let cache: { builtAt: number; rows: BoardRow[] } | null = null;
 
 async function buildBoard(): Promise<BoardRow[]> {
@@ -41,7 +57,7 @@ async function buildBoard(): Promise<BoardRow[]> {
 
     return {
       userId: user.id,
-      displayName: user.name?.trim() || "Anonymous eater",
+      displayName: publicName(user),
       points,
       level: levelForPoints(points),
       currentStreak: stats.currentStreak,
@@ -61,8 +77,8 @@ async function buildBoard(): Promise<BoardRow[]> {
 }
 
 // Everyone-vs-everyone leaderboard, visible to any logged-in user.
-// Only shares nickname, points, level, streak and badges — never emails,
-// ages, or money.
+// Only shares first name + last initial, points, level, streak and badges —
+// never emails, ages, or money.
 export async function GET() {
   const userId = await getCurrentUserId();
 
@@ -81,4 +97,3 @@ export async function GET() {
 
   return Response.json({ rows });
 }
-

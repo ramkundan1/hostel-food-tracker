@@ -5,6 +5,9 @@ model User {
   email        String   @unique
   username     String?
   name         String?
+  firstName    String?
+  middleName   String?
+  lastName     String?
   passwordHash String
   emailVerified Boolean @default(false)
   verificationToken String?
@@ -121,3 +124,14 @@ model Settlement {
   settledAt   TimestamptzString @default(now())
 }
 
+model Expense {
+  id          Int    @id @default(autoincrement())
+  userId      Int
+  description String
+  amount      Float
+  date        TimestamptzString
+  nepaliYear  Int
+  nepaliMonth Int
+  nepaliDate  Int
+  createdAt   TimestamptzString @default(now())
+}

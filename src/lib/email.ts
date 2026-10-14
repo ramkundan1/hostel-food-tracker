@@ -8,7 +8,7 @@
 //      testing)
 //   3. Create an API key and set it as RESEND_API_KEY in your .env
 //   4. Set EMAIL_FROM to an address on your verified domain
-//      (e.g. "Eatrack <noreply@yourdomain.com>")
+//      (e.g. "e-tracker <noreply@yourdomain.com>")
 //   5. Set APP_URL to your site's public URL (used to build the
 //      verification link). Falls back to http://localhost:3000.
 //
@@ -81,11 +81,11 @@ export async function sendVerificationEmail(
 
   return sendEmail(
     email,
-    "Verify your email — Eatrack",
+    "Verify your email — e-tracker",
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Verify your email</h2>
-        <p>Thanks for signing up for Eatrack. Click the button below to verify your email address. This link expires in 24 hours.</p>
+        <p>Thanks for signing up for e-tracker. Click the button below to verify your email address. This link expires in 24 hours.</p>
         <p style="margin: 24px 0;">
           <a href="${link}" style="background:#10b981;color:#020617;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold;">
             Verify Email
@@ -107,11 +107,11 @@ export async function sendPasswordResetEmail(
 
   return sendEmail(
     email,
-    "Reset your password — Eatrack",
+    "Reset your password — e-tracker",
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Reset your password</h2>
-        <p>We got a request to reset your Eatrack password. Click the button below to choose a new one. This link expires in 1 hour.</p>
+        <p>We got a request to reset your e-tracker password. Click the button below to choose a new one. This link expires in 1 hour.</p>
         <p style="margin: 24px 0;">
           <a href="${link}" style="background:#f59e0b;color:#020617;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold;">
             Reset Password
@@ -132,11 +132,11 @@ export async function sendDeleteAccountCode(
 ): Promise<{ sent: boolean }> {
   return sendEmail(
     email,
-    "Confirm account deletion — Eatrack",
+    "Confirm account deletion — e-tracker",
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Delete your account?</h2>
-        <p>Enter this code in Eatrack to permanently delete your account and all its data. This code expires in 15 minutes.</p>
+        <p>Enter this code in e-tracker to permanently delete your account and all its data. This code expires in 15 minutes.</p>
         <p style="margin: 24px 0; font-size: 32px; font-weight: bold; letter-spacing: 6px;">${code}</p>
         <p style="color:#64748b;font-size:13px;">If you didn't request this, ignore this email — your account is safe and nothing will change.</p>
       </div>
@@ -161,7 +161,7 @@ export async function sendFeedbackEmail(
 
   return sendEmail(
     supportEmail,
-    `Eatrack feedback from ${fromEmail}`,
+    `e-tracker feedback from ${fromEmail}`,
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>New feedback</h2>
@@ -173,4 +173,3 @@ export async function sendFeedbackEmail(
     message
   );
 }
-

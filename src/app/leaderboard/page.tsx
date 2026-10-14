@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trophy, Flame, Gift, Settings } from "lucide-react";
+import Brand from "@/components/Brand";
+import PageNav from "@/components/PageNav";
 
 type Badge = {
   id: string;
@@ -19,6 +21,7 @@ type Stats = {
   chickenCount: number;
   points: number;
   level: string;
+  backdatedCount?: number;
   badges: Badge[];
 };
 
@@ -74,13 +77,13 @@ export default function LeaderboardPage() {
     const earned = stats.badges.filter((b) => b.earned).map((b) => b.emoji);
 
     const lines = [
-      "My Eatrack Recap",
+      "My e-tracker Recap",
       rank >= 0 ? `Rank: ${medalFor(rank)} of ${rows.length}` : null,
       `Points: ${stats.points} (${stats.level})`,
       `Current streak: ${stats.currentStreak} day${stats.currentStreak === 1 ? "" : "s"}`,
       earned.length > 0 ? `Badges: ${earned.join(" ")}` : null,
       "",
-      "Track yours at Eatrack",
+      "Track yours at e-tracker",
     ].filter((line) => line !== null);
 
     try {
@@ -94,47 +97,41 @@ export default function LeaderboardPage() {
 
   if (loading || !stats) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-white text-slate-900">
+      <main className="flex min-h-dvh items-center justify-center bg-white text-slate-900">
         <p className="text-slate-400">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white p-4 text-slate-900 sm:p-6">
+    <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
       <div className="mx-auto max-w-2xl">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              Eatrack
-            </p>
+            <Brand />
             <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
               Leaderboard
             </h1>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => router.push("/rewards")}
-              className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
-            >
-              <Gift className="h-4 w-4" />
-              Rewards
-            </button>
-            <button
-              onClick={() => router.push("/account")}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              <Settings className="h-4 w-4" />
-              Account
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Back
-            </button>
-          </div>
+          <PageNav />
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={() => router.push("/rewards")}
+            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+          >
+            <Gift className="h-4 w-4" />
+            Rewards
+          </button>
+          <button
+            onClick={() => router.push("/settings")}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </button>
         </div>
 
         {/* Your stats */}
@@ -148,6 +145,15 @@ export default function LeaderboardPage() {
             {stats.currentStreak} day{stats.currentStreak === 1 ? "" : "s"} streak
             · best {stats.longestStreak}
           </p>
+
+          {(stats.backdatedCount ?? 0) > 0 && (
+            <p className="mt-3 text-xs text-slate-400">
+              {stats.backdatedCount} meal
+              {stats.backdatedCount === 1 ? "" : "s"} logged for a past date
+              {stats.backdatedCount === 1 ? " doesn't" : " don't"} count toward
+              points or streaks.
+            </p>
+          )}
         </section>
 
         {/* Badges */}
@@ -183,8 +189,8 @@ export default function LeaderboardPage() {
             </h2>
           </div>
           <p className="mt-1 text-xs text-slate-400">
-            10 pts per meal logged · 50 pts per badge · 5 pts per streak day.
-            Only names and points are shown.
+            10 pts per meal logged on the day · 50 pts per badge · 5 pts per
+            streak day. Only first names and points are shown.
           </p>
 
           <div className="mt-4 space-y-2">
@@ -233,4 +239,3 @@ export default function LeaderboardPage() {
     </main>
   );
 }
-

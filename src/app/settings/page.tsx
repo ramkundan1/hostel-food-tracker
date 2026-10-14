@@ -2,8 +2,11 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Brand from "@/components/Brand";
+import PageNav from "@/components/PageNav";
+import ProfileForm from "@/components/ProfileForm";
 
-export default function AccountPage() {
+export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
@@ -19,12 +22,15 @@ export default function AccountPage() {
   useEffect(() => {
     async function check() {
       const res = await fetch("/api/auth/me");
+
       if (res.status === 401) {
         router.push("/login");
         return;
       }
+
       setLoading(false);
     }
+
     check();
   }, [router]);
 
@@ -62,6 +68,7 @@ export default function AccountPage() {
     const confirmed = window.confirm(
       "Delete your account? This removes every meal entry, price, and point permanently. We'll email you a code to confirm."
     );
+
     if (!confirmed) return;
 
     setDeleteStep("sending");
@@ -100,43 +107,35 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-white text-slate-900">
-        <p className="text-slate-500">Loading...</p>
+      <main className="flex min-h-dvh items-center justify-center bg-white text-slate-900">
+        <p className="text-slate-400">Loading...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 text-slate-900">
+    <main className="min-h-dvh bg-white p-6 text-slate-900">
       <div className="mx-auto max-w-lg">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              Eatrack
-            </p>
-            <h1 className="font-display mt-2 text-2xl font-semibold tracking-tight">
-              Account
+            <Brand />
+            <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
+              Settings
             </h1>
           </div>
-          <button
-            onClick={() => router.push("/")}
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-          >
-            Back
-          </button>
+          <PageNav />
         </div>
 
         <section className="mt-8 rounded-2xl border border-slate-200 p-5">
           <h2 className="font-semibold">Profile</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Update the name and age shown on your profile.
+            The leaderboard shows your first name and the initial of your last
+            name. Your age is never shown to anyone.
           </p>
-          <button
-            onClick={() => router.push("/profile-setup")}
-            className="mt-4 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-          >
-            Edit profile
-          </button>
+
+          <div className="mt-5">
+            <ProfileForm submitLabel="Save changes" onSaved={() => {}} />
+          </div>
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 p-5">
@@ -146,7 +145,7 @@ export default function AccountPage() {
           </p>
 
           {feedbackSent ? (
-            <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">
+            <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
               Sent — thank you.
             </p>
           ) : (
@@ -157,7 +156,7 @@ export default function AccountPage() {
                 placeholder="What's on your mind?"
                 rows={4}
                 maxLength={2000}
-                className="w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-slate-400"
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-base outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
 
               {feedbackError && (
@@ -192,7 +191,9 @@ export default function AccountPage() {
           )}
 
           {deleteStep === "sending" && (
-            <p className="mt-4 text-sm text-slate-500">Sending a code to your email...</p>
+            <p className="mt-4 text-sm text-slate-500">
+              Sending a code to your email...
+            </p>
           )}
 
           {deleteStep === "code" && (
@@ -207,7 +208,7 @@ export default function AccountPage() {
                 onChange={(e) => setDeleteCode(e.target.value)}
                 placeholder="000000"
                 maxLength={6}
-                className="w-full rounded-xl border border-slate-200 p-3 text-center text-lg tracking-[0.5em] outline-none focus:border-red-400"
+                className="w-full rounded-xl border border-slate-300 p-3 text-center text-lg tracking-[0.5em] outline-none focus:border-red-400"
               />
 
               {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
@@ -226,7 +227,7 @@ export default function AccountPage() {
                     setDeleteCode("");
                     setDeleteError("");
                   }}
-                  className="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600"
+                  className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600"
                 >
                   Cancel
                 </button>
@@ -238,4 +239,3 @@ export default function AccountPage() {
     </main>
   );
 }
-

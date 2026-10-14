@@ -17,6 +17,25 @@ export async function POST() {
     return Response.json({ error: "User not found." }, { status: 404 });
   }
 
+  // Points are only spent once there is a saved selection to auto-log.
+  const hasSavedSelection = [
+    user.autoLunchMeal,
+    user.autoLunchEgg,
+    user.autoLunchCurd,
+    user.autoLunchChicken,
+    user.autoDinnerMeal,
+    user.autoDinnerEgg,
+    user.autoDinnerCurd,
+    user.autoDinnerChicken,
+  ].some(Boolean);
+
+  if (!hasSavedSelection) {
+    return Response.json(
+      { error: "Choose what to auto-log and save it before redeeming." },
+      { status: 400 }
+    );
+  }
+
   const entries = await db.orm.public.FoodEntry.where({ userId }).all();
   const stats = computeStats(entries);
   const availablePoints = Math.max(0, stats.points - user.pointsSpent);
@@ -30,11 +49,17 @@ export async function POST() {
 
   // Redeeming really spends the points: it lowers your points (and so your
   // leaderboard rank) in exchange for an auto-entry day.
+  const autoEntryCredits = user.autoEntryCredits + 1;
+
   await db.orm.public.User.where({ id: userId }).update({
     pointsSpent: user.pointsSpent + REDEEM_COST,
-    autoEntryCredits: user.autoEntryCredits + 1,
+    autoEntryCredits,
   });
 
-  return Response.json({ success: true });
+  return Response.json({
+    success: true,
+    autoEntryCredits,
+    pointsRemaining: availablePoints - REDEEM_COST,
+    autoEntryEnabled: user.autoEntryEnabled,
+  });
 }
-
