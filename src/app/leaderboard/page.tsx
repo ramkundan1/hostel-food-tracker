@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trophy, Flame, Gift, Settings } from "lucide-react";
+import { Trophy, Flame } from "lucide-react";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
 
@@ -115,23 +115,6 @@ export default function LeaderboardPage() {
           </div>
 
           <PageNav />
-        </div>
-
-        <div className="mt-4 flex gap-2">
-          <button
-            onClick={() => router.push("/rewards")}
-            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
-          >
-            <Gift className="h-4 w-4" />
-            Rewards
-          </button>
-          <button
-            onClick={() => router.push("/settings")}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            <Settings className="h-4 w-4" />
-            Settings
-          </button>
         </div>
 
         {/* Your stats */}

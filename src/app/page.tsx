@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
-import { Utensils, Egg, Milk, Drumstick, Trophy, Soup, Moon, Settings, Wallet } from "lucide-react";
+import { Utensils, Egg, Milk, Drumstick, Soup, Moon, Settings, Wallet } from "lucide-react";
 
 type Prices = {
   meal: number | null;
@@ -253,6 +253,12 @@ const router = useRouter();
         loadedPrices.chicken === null
       ) {
         setShowPriceSetup(true);
+      }
+
+      // Settings links here with ?prices=1 to open the price form directly.
+      if (new URLSearchParams(window.location.search).get("prices") === "1") {
+        setShowPriceSetup(true);
+        window.history.replaceState(null, "", "/");
       }
 
       setSummary(await summaryRes.json());
@@ -747,155 +753,128 @@ const router = useRouter();
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
       <div className="mx-auto max-w-4xl">
-        <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
               e-tracker
             </p>
 
-            <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight">
-              Track every meal. Know every cost.
-            </h1>
-
-            <p className="mt-2 text-slate-400">
+            <h1 className="font-display mt-1 text-2xl font-semibold tracking-tight">
               {formatNepaliMonth(summary.nepaliYear, summary.nepaliMonth)}
-            </p>
+            </h1>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-            <button
-              onClick={() => setShowPriceSetup(true)}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
-            >
-              Update Prices
-            </button>
-
+          <div className="grid grid-cols-3 gap-2 sm:flex">
             <button
               onClick={() => setShowMonthlyReport(true)}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
             >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+                className="h-4 w-4"
+              >
+                <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+              </svg>
               Monthly Report
             </button>
 
             <button
               onClick={() => router.push("/expenses")}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
             >
               <Wallet className="h-4 w-4" />
               Expenses
             </button>
 
             <button
-              onClick={() => router.push("/leaderboard")}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
-            >
-              <Trophy className="h-4 w-4" />
-              Leaderboard
-            </button>
-
-            <button
               onClick={() => router.push("/settings")}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
             >
               <Settings className="h-4 w-4" />
               Settings
             </button>
-
-            <button
-              onClick={async () => {
-                await fetch("/api/auth/logout", {
-                  method: "POST",
-                });
-                router.push("/login");
-              }}
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
-            >
-              Logout
-            </button>
           </div>
         </header>
 
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-7">
-          <p className="text-sm font-medium text-slate-400">
-            Spent So Far
-          </p>
+        <section className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              Spent so far this month
+            </p>
 
-          <p className="mt-2 text-5xl font-bold tracking-tight">
-            Rs. {summary.totalExpense.toFixed(2)}
-          </p>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Current Nepali month
-          </p>
-        </section>
-
-        <section className="mt-7 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold">Entry date (Nepali)</p>
-              <p className="text-xs text-slate-500">
-                {editingEntryId !== null
-                  ? "Editing an existing entry keeps its original date."
-                  : "Pick today or an earlier Nepali date to log a meal for."}
-              </p>
-            </div>
+            <p className="mt-1 text-3xl font-semibold tracking-tight">
+              Rs. {summary.totalExpense.toFixed(2)}
+            </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <select
-              value={nepaliYear}
-              disabled={editingEntryId !== null}
-              onChange={(e) => setNepaliYear(Number(e.target.value))}
-              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
-                (year) => (
-                  <option key={year} value={year}>
-                    {year}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              {editingEntryId !== null
+                ? "Editing keeps the original date"
+                : "Entry date (Nepali)"}
+            </p>
+
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              <select
+                value={nepaliYear}
+                disabled={editingEntryId !== null}
+                onChange={(e) => setNepaliYear(Number(e.target.value))}
+                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
+                  (year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  )
+                )}
+              </select>
+
+              <select
+                value={nepaliMonthIndex}
+                disabled={editingEntryId !== null}
+                onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
+                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {NEPALI_MONTHS.map((name, index) => (
+                  <option key={name} value={index}>
+                    {name}
                   </option>
-                )
+                ))}
+              </select>
+
+              <select
+                value={nepaliDay}
+                disabled={editingEntryId !== null}
+                onChange={(e) => setNepaliDay(Number(e.target.value))}
+                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <p className="mt-1.5 text-xs text-slate-500">
+              {editingEntryId === null && selectedDateInfo.invalidReason ? (
+                <span className="text-red-600">
+                  {selectedDateInfo.invalidReason}
+                </span>
+              ) : (
+                <>≈ {formatAdDate(selectedDateInfo.adDate)} (AD)</>
               )}
-            </select>
-
-            <select
-              value={nepaliMonthIndex}
-              disabled={editingEntryId !== null}
-              onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
-              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {NEPALI_MONTHS.map((name, index) => (
-                <option key={name} value={index}>
-                  {name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={nepaliDay}
-              disabled={editingEntryId !== null}
-              onChange={(e) => setNepaliDay(Number(e.target.value))}
-              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
-                <option key={day} value={day}>
-                  {day}
-                </option>
-              ))}
-            </select>
+            </p>
           </div>
-
-          <p className="mt-3 text-xs text-slate-500">
-            {editingEntryId === null && selectedDateInfo.invalidReason ? (
-              <span className="text-red-600">
-                {selectedDateInfo.invalidReason}
-              </span>
-            ) : (
-              <>≈ {formatAdDate(selectedDateInfo.adDate)} (AD)</>
-            )}
-          </p>
         </section>
 
-        <div className="mt-7 grid gap-6 md:grid-cols-2">
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
           <MealCard
             title="Lunch"
             selection={lunch}
@@ -1007,11 +986,10 @@ function MealCard({
 
   return (
     <section
-      className={`rounded-3xl border border-slate-200 border-l-4 ${accentBorder} bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]`}
+      className={`rounded-3xl border border-slate-200 border-l-4 ${accentBorder} bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]`}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-slate-500">Meal</p>
           <h2 className="font-display flex items-center gap-2 text-2xl font-semibold tracking-tight">
             <MealIcon className="h-5 w-5 text-slate-400" />
             {title}
@@ -1057,7 +1035,7 @@ function MealCard({
       <button
         onClick={() => onToggle("meal")}
         className={
-          "mt-6 flex w-full items-center justify-between rounded-2xl border p-4 transition " +
+          "mt-4 flex w-full items-center justify-between rounded-2xl border p-4 transition " +
           (selection.meal
             ? "border-emerald-500 bg-emerald-50"
             : "border-slate-300 bg-white")

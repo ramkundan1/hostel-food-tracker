@@ -5,10 +5,42 @@ import { useRouter } from "next/navigation";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
 import ProfileForm from "@/components/ProfileForm";
+import { Trophy, Gift, Utensils } from "lucide-react";
+
+function NavRow({
+  icon: Icon,
+  title,
+  text,
+  onClick,
+}: {
+  icon: typeof Trophy;
+  title: string;
+  text: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition-colors hover:bg-slate-50"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <Icon className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">{title}</span>
+        <span className="block text-sm text-slate-500">{text}</span>
+      </span>
+      <span aria-hidden="true" className="text-xl text-slate-300">
+        ›
+      </span>
+    </button>
+  );
+}
 
 export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const [feedback, setFeedback] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
@@ -105,6 +137,12 @@ export default function SettingsPage() {
     router.push("/login");
   }
 
+  async function logout() {
+    setLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }
+
   if (loading) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-white text-slate-900">
@@ -126,7 +164,28 @@ export default function SettingsPage() {
           <PageNav />
         </div>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 p-5">
+        <div className="mt-8 space-y-3">
+          <NavRow
+            icon={Trophy}
+            title="Leaderboard"
+            text="See your points, streak and badges"
+            onClick={() => router.push("/leaderboard")}
+          />
+          <NavRow
+            icon={Gift}
+            title="Rewards"
+            text="Redeem points for automatic meal entries"
+            onClick={() => router.push("/rewards")}
+          />
+          <NavRow
+            icon={Utensils}
+            title="Update prices"
+            text="Change what a meal, egg, curd and chicken cost"
+            onClick={() => router.push("/?prices=1")}
+          />
+        </div>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 p-5">
           <h2 className="font-semibold">Profile</h2>
           <p className="mt-1 text-sm text-slate-500">
             The leaderboard shows your first name and the initial of your last
@@ -172,6 +231,20 @@ export default function SettingsPage() {
               </button>
             </form>
           )}
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 p-5">
+          <h2 className="font-semibold">Log out</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Sign out of e-tracker on this device.
+          </p>
+          <button
+            onClick={logout}
+            disabled={loggingOut}
+            className="mt-4 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            {loggingOut ? "Logging out..." : "Log out"}
+          </button>
         </section>
 
         <section className="mt-6 rounded-2xl border border-red-200 p-5">
