@@ -18,6 +18,7 @@ type RewardsData = {
   currentStreak: number;
   autoEntryCredits: number;
   autoEntryEnabled: boolean;
+  unlimited?: boolean;
   nextStreakTier: { days: number; credits: number } | null;
   template: { lunch: MealTemplate; dinner: MealTemplate };
 };
@@ -303,7 +304,9 @@ export default function RewardsPage() {
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-slate-500">Days available</dt>
-              <dd className="font-medium">{data.autoEntryCredits}</dd>
+              <dd className="font-medium">
+                {data.unlimited ? "Unlimited" : data.autoEntryCredits}
+              </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-slate-500">Lunch</dt>
@@ -367,6 +370,15 @@ export default function RewardsPage() {
           </button>
         </section>
 
+        {data.unlimited ? (
+          <section className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+            <h2 className="font-semibold text-blue-900">Unlimited auto-entry</h2>
+            <p className="mt-1 text-sm text-blue-800">
+              As an admin your auto-entry never runs out, so there is nothing to
+              redeem. Choose what to log above and it runs every night.
+            </p>
+          </section>
+        ) : (
         <section className="mt-6 rounded-2xl border border-slate-200 p-5">
           <h2 className="font-semibold">Redeem points</h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -430,6 +442,7 @@ export default function RewardsPage() {
             </div>
           )}
         </section>
+        )}
       </div>
     </main>
   );

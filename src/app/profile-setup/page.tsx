@@ -53,8 +53,7 @@ export default function ProfileSetupPage() {
 
         <p className="mt-1 text-sm text-slate-500">
           Please use your real first and last name. The leaderboard shows only
-          your first name and the initial of your last name. Your age is never
-          shown to anyone.
+          your first name and the initial of your last name. Your date of birth stays private — other users never see it.
         </p>
 
         <div className="mt-6">

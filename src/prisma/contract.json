@@ -1010,6 +1010,13 @@
                   "kind": "scalar"
                 }
               },
+              "dateOfBirth": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "deleteToken": {
                 "nullable": true,
                 "type": {
@@ -1236,6 +1243,9 @@
                 },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "dateOfBirth": {
+                  "column": "dateOfBirth"
                 },
                 "deleteToken": {
                   "column": "deleteToken"
@@ -2110,6 +2120,11 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "dateOfBirth": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "deleteToken": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -2252,7 +2267,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "541d8d50f31b82651d927ff86f107c92e843549b3eef09e05644c1964a2fd4cb"
+    "storageHash": "b0ea2dc407752e0ab85fd8444572930bd5346ca9d1c109764b31242c2e7051df"
   },
   "execution": {
     "executionHash": "9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24",

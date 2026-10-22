@@ -85,20 +85,12 @@ export default function ExpensesPage() {
     }
   }
 
-  function changeMonth(delta: number) {
-    let month = view.month + delta;
-    let year = view.year;
+  function chooseView(year: number, month: number) {
+    // Never let the view move past the current month.
+    const safeMonth = year === current.year && month > current.month ? current.month : month;
 
-    if (month < 0) {
-      month = 11;
-      year -= 1;
-    } else if (month > 11) {
-      month = 0;
-      year += 1;
-    }
-
-    setView({ year, month });
-    load(year, month);
+    setView({ year, month: safeMonth });
+    load(year, safeMonth);
   }
 
   async function addItem(event: FormEvent) {
@@ -196,25 +188,36 @@ export default function ExpensesPage() {
           <PageNav />
         </div>
 
-        <div className="mt-6 flex items-center justify-between rounded-2xl border border-slate-200 p-2">
-          <button
-            onClick={() => changeMonth(-1)}
-            aria-label="Previous month"
-            className="rounded-xl px-4 py-2 text-lg text-slate-600 hover:bg-slate-50"
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          <select
+            aria-label="Month"
+            value={view.month}
+            onChange={(e) => chooseView(view.year, Number(e.target.value))}
+            className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
-            ‹
-          </button>
-          <p className="font-medium">
-            {NEPALI_MONTHS[view.month]} {view.year}
-          </p>
-          <button
-            onClick={() => changeMonth(1)}
-            disabled={isCurrentMonth}
-            aria-label="Next month"
-            className="rounded-xl px-4 py-2 text-lg text-slate-600 hover:bg-slate-50 disabled:opacity-30"
+            {NEPALI_MONTHS.map((name, index) => (
+              <option
+                key={name}
+                value={index}
+                disabled={view.year === current.year && index > current.month}
+              >
+                {name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Year"
+            value={view.year}
+            onChange={(e) => chooseView(Number(e.target.value), view.month)}
+            className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
-            ›
-          </button>
+            {Array.from({ length: 11 }, (_, i) => current.year - i).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">

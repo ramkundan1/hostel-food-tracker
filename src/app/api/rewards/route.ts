@@ -1,6 +1,7 @@
 import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { computeStats, levelForPoints } from "@/lib/stats";
+import { isAdminEmail } from "@/lib/admin";
 
 const STREAK_TIERS = [
   { days: 7, credits: 2 },
@@ -31,6 +32,7 @@ export async function GET() {
     level: levelForPoints(points),
     currentStreak: stats.currentStreak,
     autoEntryCredits: user.autoEntryCredits,
+    unlimited: isAdminEmail(user.email),
     autoEntryEnabled: user.autoEntryEnabled,
     nextStreakTier: nextTier ?? null,
     template: {

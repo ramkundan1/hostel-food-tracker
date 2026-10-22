@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Utensils, Wallet, Flame, Trophy } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import Brand from "@/components/Brand";
 
 export const metadata: Metadata = {
   title: "e-tracker — track your meals and spending",
@@ -42,7 +43,7 @@ export default function WelcomePage() {
   return (
     <main className="min-h-dvh bg-white text-slate-900">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-5 sm:px-8">
-        <p className="text-lg font-semibold tracking-tight">e-tracker</p>
+        <Brand />
         <Link
           href="/login"
           className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

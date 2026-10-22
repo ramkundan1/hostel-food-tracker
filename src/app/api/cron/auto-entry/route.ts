@@ -1,6 +1,7 @@
 import { db } from "@/prisma/db";
 import nepaliDateConverter from "nepali-date-converter";
 import { calculateMealCost } from "@/lib/pricing";
+import { isAdminEmail } from "@/lib/admin";
 
 // Called once a day by Vercel Cron (see vercel.json). Vercel adds
 // "Authorization: Bearer <CRON_SECRET>" automatically when CRON_SECRET is
@@ -32,7 +33,10 @@ export async function GET(request: Request) {
   let entriesCreated = 0;
 
   for (const user of users) {
-    if (user.autoEntryCredits <= 0) continue;
+    // Admins have unlimited auto-entry: it never uses up days.
+    const unlimited = isAdminEmail(user.email);
+
+    if (user.autoEntryCredits <= 0 && !unlimited) continue;
 
     const price = await db.orm.public.FoodPrice
       .where({ userId: user.id })
@@ -98,7 +102,9 @@ export async function GET(request: Request) {
       createdToday = true;
     }
 
-    if (createdToday) {
+    if (createdToday && unlimited) {
+      usersProcessed++;
+    } else if (createdToday) {
       const remaining = user.autoEntryCredits - 1;
 
       await db.orm.public.User.where({ id: user.id }).update({

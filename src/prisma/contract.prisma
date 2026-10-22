@@ -17,6 +17,7 @@ model User {
   failedLoginAttempts Int @default(0)
   lockedUntil TimestamptzString?
   age Int?
+  dateOfBirth String?
   deleteToken String?
   deleteTokenExpiresAt TimestamptzString?
   pointsSpent Int @default(0)

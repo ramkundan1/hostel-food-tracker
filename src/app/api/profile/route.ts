@@ -1,6 +1,39 @@
 import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { checkName } from "@/lib/nameRules";
+import { isAdminEmail } from "@/lib/admin";
+
+// Whole years old today, or null when the date isn't a real calendar date.
+function ageFrom(dateOfBirth: string): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth);
+
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  const probe = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() !== month - 1 ||
+    probe.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const now = new Date();
+  let age = now.getUTCFullYear() - year;
+
+  const hadBirthday =
+    now.getUTCMonth() + 1 > month ||
+    (now.getUTCMonth() + 1 === month && now.getUTCDate() >= day);
+
+  if (!hadBirthday) age -= 1;
+
+  return age;
+}
 
 export async function GET() {
   const userId = await getCurrentUserId();
@@ -33,8 +66,11 @@ export async function GET() {
     firstName,
     middleName,
     lastName,
-    age: user.age ?? null,
-    hasProfile: Boolean(user.firstName && user.lastName && user.age),
+    dateOfBirth: user.dateOfBirth ?? "",
+    email: user.email,
+    emailVerified: user.emailVerified,
+    isAdmin: isAdminEmail(user.email),
+    hasProfile: Boolean(user.firstName && user.lastName && user.dateOfBirth),
   });
 }
 
@@ -53,10 +89,14 @@ export async function POST(request: Request) {
     return Response.json({ error: check.error }, { status: 400 });
   }
 
-  const age = Number(body.age);
+  const dateOfBirth = String(body.dateOfBirth ?? "");
+  const age = ageFrom(dateOfBirth);
 
-  if (!Number.isInteger(age) || age < 5 || age > 120) {
-    return Response.json({ error: "Enter a valid age." }, { status: 400 });
+  if (age === null || age < 5 || age > 120) {
+    return Response.json(
+      { error: "Enter a valid date of birth." },
+      { status: 400 }
+    );
   }
 
   await db.orm.public.User.where({ id: userId }).update({
@@ -64,6 +104,7 @@ export async function POST(request: Request) {
     firstName: check.firstName,
     middleName: check.middleName || null,
     lastName: check.lastName,
+    dateOfBirth,
     age,
   });
 

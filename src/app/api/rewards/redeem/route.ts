@@ -1,6 +1,7 @@
 import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { computeStats } from "@/lib/stats";
+import { isAdminEmail } from "@/lib/admin";
 
 const REDEEM_COST = 100;
 
@@ -15,6 +16,13 @@ export async function POST() {
 
   if (!user) {
     return Response.json({ error: "User not found." }, { status: 404 });
+  }
+
+  if (isAdminEmail(user.email)) {
+    return Response.json(
+      { error: "Admins already have unlimited auto-entry." },
+      { status: 400 }
+    );
   }
 
   // Points are only spent once there is a saved selection to auto-log.

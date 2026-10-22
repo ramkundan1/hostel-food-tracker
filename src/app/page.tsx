@@ -1,4 +1,6 @@
 "use client";
+
+import Brand from "@/components/Brand";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
@@ -141,6 +143,11 @@ const router = useRouter();
   const [savingDinner, setSavingDinner] = useState(false);
 
   const [showPriceSetup, setShowPriceSetup] = useState(false);
+  // On phones only one meal card shows at a time; default to the likely one.
+  const [activeMeal, setActiveMeal] = useState<"lunch" | "dinner">(() =>
+    new Date().getHours() >= 15 ? "dinner" : "lunch"
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMonthlyReport, setShowMonthlyReport] = useState(false);
 
   const [months, setMonths] = useState<
@@ -542,6 +549,7 @@ const router = useRouter();
   function editEntry(entry: Entry) {
     setEditingEntryId(entry.id);
     setEditingMealType(entry.mealType);
+    setActiveMeal(entry.mealType === "dinner" ? "dinner" : "lunch");
     setLunchError(null);
     setDinnerError(null);
 
@@ -648,6 +656,19 @@ const router = useRouter();
     }
   }
 
+  function goHome() {
+    setShowMonthlyReport(false);
+
+    if (prices.meal !== null) setShowPriceSetup(false);
+  }
+
+  const isTodaySelected =
+    nepaliYear === todayNepali.getYear() &&
+    nepaliMonthIndex === todayNepali.getMonth() &&
+    nepaliDay === todayNepali.getDate();
+
+  const selectedLabel = `${NEPALI_MONTHS[nepaliMonthIndex]} ${nepaliDay}, ${nepaliYear}`;
+
   if (loading) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-white text-slate-900">
@@ -661,9 +682,7 @@ const router = useRouter();
       <main className="min-h-dvh bg-white p-6 text-slate-900">
         <div className="mx-auto max-w-2xl pt-10">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              e-tracker
-            </p>
+            <Brand linked={prices.meal !== null} onClick={() => setShowPriceSetup(false)} />
 
             {prices.meal !== null && (
               <button
@@ -752,14 +771,12 @@ const router = useRouter();
 
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
-      <div className="mx-auto max-w-4xl">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto max-w-5xl">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              e-tracker
-            </p>
+            <Brand onClick={goHome} />
 
-            <h1 className="font-display mt-1 text-2xl font-semibold tracking-tight">
+            <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               {formatNepaliMonth(summary.nepaliYear, summary.nepaliMonth)}
             </h1>
           </div>
@@ -767,7 +784,7 @@ const router = useRouter();
           <div className="grid grid-cols-3 gap-2 sm:flex">
             <button
               onClick={() => setShowMonthlyReport(true)}
-              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -776,7 +793,7 @@ const router = useRouter();
                 strokeWidth="2"
                 strokeLinecap="round"
                 aria-hidden="true"
-                className="h-4 w-4"
+                className="h-5 w-5 sm:h-4 sm:w-4"
               >
                 <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
               </svg>
@@ -785,96 +802,147 @@ const router = useRouter();
 
             <button
               onClick={() => router.push("/expenses")}
-              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
-              <Wallet className="h-4 w-4" />
+              <Wallet className="h-5 w-5 sm:h-4 sm:w-4" />
               Expenses
             </button>
 
             <button
               onClick={() => router.push("/settings")}
-              className="flex flex-col items-center justify-center gap-1 rounded-xl border border-slate-300 bg-slate-50 px-1 py-2 text-xs font-medium hover:bg-slate-100 sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
               Settings
             </button>
           </div>
         </header>
 
-        <section className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-medium text-slate-500">
-              Spent so far this month
-            </p>
+        <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <div className="sm:grid sm:grid-cols-2 sm:items-center sm:gap-6">
+            <div>
+              <p className="text-sm font-medium text-slate-500">
+                Spent so far this month
+              </p>
 
-            <p className="mt-1 text-3xl font-semibold tracking-tight">
-              Rs. {summary.totalExpense.toFixed(2)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-medium text-slate-500">
-              {editingEntryId !== null
-                ? "Editing keeps the original date"
-                : "Entry date (Nepali)"}
-            </p>
-
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              <select
-                value={nepaliYear}
-                disabled={editingEntryId !== null}
-                onChange={(e) => setNepaliYear(Number(e.target.value))}
-                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
-                  (year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  )
-                )}
-              </select>
-
-              <select
-                value={nepaliMonthIndex}
-                disabled={editingEntryId !== null}
-                onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
-                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {NEPALI_MONTHS.map((name, index) => (
-                  <option key={name} value={index}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={nepaliDay}
-                disabled={editingEntryId !== null}
-                onChange={(e) => setNepaliDay(Number(e.target.value))}
-                className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
-                  <option key={day} value={day}>
-                    {day}
-                  </option>
-                ))}
-              </select>
+              <p className="mt-1 text-4xl font-semibold tracking-tight sm:text-5xl">
+                Rs. {summary.totalExpense.toFixed(2)}
+              </p>
             </div>
 
-            <p className="mt-1.5 text-xs text-slate-500">
-              {editingEntryId === null && selectedDateInfo.invalidReason ? (
-                <span className="text-red-600">
-                  {selectedDateInfo.invalidReason}
-                </span>
-              ) : (
-                <>≈ {formatAdDate(selectedDateInfo.adDate)} (AD)</>
-              )}
-            </p>
+            <div className="mt-4 border-t border-slate-200 pt-4 sm:mt-0 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Logging for
+                  </p>
+
+                  <p className="truncate text-lg font-semibold">
+                    {editingEntryId !== null
+                      ? "Original date kept"
+                      : isTodaySelected
+                        ? `Today · ${selectedLabel}`
+                        : selectedLabel}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowDatePicker((open) => !open)}
+                  disabled={editingEntryId !== null}
+                  className="shrink-0 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:opacity-40"
+                >
+                  {showDatePicker ? "Done" : "Change"}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {showDatePicker && editingEntryId === null && (
+            <div className="mt-4 border-t border-slate-200 pt-4">
+              <div className="grid grid-cols-3 gap-2">
+                <select
+                  value={nepaliYear}
+                  onChange={(e) => setNepaliYear(Number(e.target.value))}
+                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                  {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
+                    (year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                <select
+                  value={nepaliMonthIndex}
+                  onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
+                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                  {NEPALI_MONTHS.map((name, index) => (
+                    <option key={name} value={index}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={nepaliDay}
+                  onChange={(e) => setNepaliDay(Number(e.target.value))}
+                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                  {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {!selectedDateInfo.invalidReason && (
+                <p className="mt-2 text-xs text-slate-500">
+                  ≈ {formatAdDate(selectedDateInfo.adDate)} (AD)
+                </p>
+              )}
+            </div>
+          )}
+
+          {editingEntryId === null && selectedDateInfo.invalidReason && (
+            <p className="mt-3 text-sm text-red-600">
+              {selectedDateInfo.invalidReason}
+            </p>
+          )}
         </section>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div
+          role="tablist"
+          aria-label="Choose a meal"
+          className="mt-5 grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1 md:hidden"
+        >
+          {(["lunch", "dinner"] as const).map((meal) => (
+            <button
+              key={meal}
+              role="tab"
+              aria-selected={activeMeal === meal}
+              onClick={() => setActiveMeal(meal)}
+              className={`flex items-center justify-center gap-2 rounded-xl py-3 text-base font-semibold capitalize transition-colors ${
+                activeMeal === meal
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              {meal === "lunch" ? (
+                <Soup className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+              {meal}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <div className={activeMeal === "lunch" ? "block" : "hidden md:block"}>
           <MealCard
             title="Lunch"
             selection={lunch}
@@ -904,7 +972,9 @@ const router = useRouter();
             error={lunchError}
             success={lunchSuccess}
           />
+          </div>
 
+          <div className={activeMeal === "dinner" ? "block" : "hidden md:block"}>
           <MealCard
             title="Dinner"
             selection={dinner}
@@ -934,6 +1004,7 @@ const router = useRouter();
             error={dinnerError}
             success={dinnerSuccess}
           />
+          </div>
         </div>
       </div>
     </main>
@@ -990,8 +1061,8 @@ function MealCard({
     >
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <MealIcon className="h-5 w-5 text-slate-400" />
+          <h2 className="font-display flex items-center gap-2 text-3xl font-semibold tracking-tight">
+            <MealIcon className="h-6 w-6 text-slate-400" />
             {title}
           </h2>
         </div>
@@ -1035,7 +1106,7 @@ function MealCard({
       <button
         onClick={() => onToggle("meal")}
         className={
-          "mt-4 flex w-full items-center justify-between rounded-2xl border p-4 transition " +
+          "mt-4 flex w-full items-center justify-between rounded-2xl border p-5 text-lg transition " +
           (selection.meal
             ? "border-emerald-500 bg-emerald-50"
             : "border-slate-300 bg-white")
@@ -1204,7 +1275,7 @@ function MealCard({
       <button
         onClick={onSave}
         disabled={saving}
-        className="mt-5 w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+        className="sticky bottom-3 z-10 mt-5 w-full rounded-full bg-blue-600 px-5 py-4 text-lg font-semibold text-white shadow-[0_8px_24px_rgba(37,99,235,0.35)] transition-colors hover:bg-blue-700 disabled:opacity-50 md:static"
       >
         {saving
           ? "Saving..."
@@ -1304,12 +1375,10 @@ function MonthlyReport({
 
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-5xl">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-              e-tracker
-            </p>
+            <Brand onClick={onBack} />
 
             <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">
               Monthly History

@@ -2,10 +2,20 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import nepaliDateConverter from "nepali-date-converter";
 import { checkName } from "@/lib/nameRules";
+import {
+  NEPALI_MONTHS,
+  nepaliDateError,
+  nepaliToAdString,
+  todayNepali,
+} from "@/components/NepaliDatePicker";
 
 const inputClass =
   "w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+
+const selectClass =
+  "w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
 
@@ -22,10 +32,17 @@ export default function ProfileForm({
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
+  // Date of birth in the Nepali calendar; empty until chosen.
+  const [dobYear, setDobYear] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobDay, setDobDay] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const today = todayNepali();
+  // Newest year first, so most people don't scroll far.
+  const years = Array.from({ length: 96 }, (_, i) => today.year - 5 - i);
 
   useEffect(() => {
     async function load() {
@@ -41,7 +58,18 @@ export default function ProfileForm({
       setFirstName(data.firstName ?? "");
       setMiddleName(data.middleName ?? "");
       setLastName(data.lastName ?? "");
-      setAge(data.age ? String(data.age) : "");
+
+      if (data.dateOfBirth) {
+        // Stored as an English date; show it in the Nepali calendar.
+        const bs = new nepaliDateConverter(
+          new Date(data.dateOfBirth + "T00:00:00")
+        );
+
+        setDobYear(String(bs.getYear()));
+        setDobMonth(String(bs.getMonth()));
+        setDobDay(String(bs.getDate()));
+      }
+
       setReady(true);
     }
 
@@ -60,10 +88,21 @@ export default function ProfileForm({
       return;
     }
 
-    const ageNumber = Number(age);
+    if (!dobYear || !dobMonth || !dobDay) {
+      setError("Select your full date of birth.");
+      return;
+    }
 
-    if (!Number.isInteger(ageNumber) || ageNumber < 5 || ageNumber > 120) {
-      setError("Enter a valid age.");
+    const dob = {
+      year: Number(dobYear),
+      month: Number(dobMonth),
+      day: Number(dobDay),
+    };
+
+    const dobProblem = nepaliDateError(dob);
+
+    if (dobProblem) {
+      setError(dobProblem);
       return;
     }
 
@@ -72,7 +111,12 @@ export default function ProfileForm({
     const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName, middleName, lastName, age: ageNumber }),
+      body: JSON.stringify({
+        firstName,
+        middleName,
+        lastName,
+        dateOfBirth: nepaliToAdString(dob),
+      }),
     });
 
     const data = await res.json();
@@ -149,19 +193,60 @@ export default function ProfileForm({
       </div>
 
       <div>
-        <label htmlFor="age" className={labelClass}>
-          Age
-        </label>
-        <input
-          id="age"
-          type="number"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          required
-          min={5}
-          max={120}
-          className={inputClass}
-        />
+        <p className={labelClass}>Date of birth (Nepali calendar)</p>
+
+        <div className="grid grid-cols-3 gap-2">
+          <select
+            aria-label="Birth year"
+            value={dobYear}
+            onChange={(e) => setDobYear(e.target.value)}
+            required
+            className={selectClass}
+          >
+            <option value="" disabled>
+              Year
+            </option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Birth month"
+            value={dobMonth}
+            onChange={(e) => setDobMonth(e.target.value)}
+            required
+            className={selectClass}
+          >
+            <option value="" disabled>
+              Month
+            </option>
+            {NEPALI_MONTHS.map((name, index) => (
+              <option key={name} value={index}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Birth day"
+            value={dobDay}
+            onChange={(e) => setDobDay(e.target.value)}
+            required
+            className={selectClass}
+          >
+            <option value="" disabled>
+              Day
+            </option>
+            {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
+              <option key={day} value={day}>
+                {day}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {error && (
