@@ -18,6 +18,7 @@ model User {
   lockedUntil TimestamptzString?
   age Int?
   dateOfBirth String?
+  nameChangedAt TimestamptzString?
   deleteToken String?
   deleteTokenExpiresAt TimestamptzString?
   pointsSpent Int @default(0)

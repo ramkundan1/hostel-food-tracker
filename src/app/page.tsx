@@ -4,7 +4,7 @@ import Brand from "@/components/Brand";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
-import { Utensils, Egg, Milk, Drumstick, Soup, Moon, Settings, Wallet } from "lucide-react";
+import { Utensils, Egg, Milk, Drumstick, Trophy, Soup, Moon, Settings, Wallet } from "lucide-react";
 
 type Prices = {
   meal: number | null;
@@ -781,10 +781,10 @@ const router = useRouter();
             </h1>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 sm:flex">
+          <div className="grid grid-cols-4 gap-1.5 sm:flex sm:gap-2">
             <button
               onClick={() => setShowMonthlyReport(true)}
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-1 py-3 text-[11px] font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -802,15 +802,23 @@ const router = useRouter();
 
             <button
               onClick={() => router.push("/expenses")}
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-1 py-3 text-[11px] font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
               <Wallet className="h-5 w-5 sm:h-4 sm:w-4" />
               Expenses
             </button>
 
             <button
+              onClick={() => router.push("/leaderboard")}
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-1 py-3 text-[11px] font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+            >
+              <Trophy className="h-5 w-5 sm:h-4 sm:w-4" />
+              Leaderboard
+            </button>
+
+            <button
               onClick={() => router.push("/settings")}
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-2 py-3 text-xs font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-1 py-3 text-[11px] font-medium shadow-sm transition-colors hover:bg-slate-50 sm:flex-row sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
             >
               <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
               Settings

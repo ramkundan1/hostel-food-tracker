@@ -2,37 +2,21 @@ import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { checkName } from "@/lib/nameRules";
 import { isAdminEmail } from "@/lib/admin";
+import { ageFrom, MIN_AGE, MAX_AGE } from "@/lib/age";
 
-// Whole years old today, or null when the date isn't a real calendar date.
-function ageFrom(dateOfBirth: string): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth);
+const NAME_CHANGE_DAYS = 30;
 
-  if (!match) return null;
+// When the name can next be changed, or null if it can be changed now.
+function nameChangeAvailableAt(changedAt: string | null | undefined): Date | null {
+  if (!changedAt) return null;
 
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
+  const changed = new Date(changedAt);
 
-  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (Number.isNaN(changed.getTime())) return null;
 
-  if (
-    probe.getUTCFullYear() !== year ||
-    probe.getUTCMonth() !== month - 1 ||
-    probe.getUTCDate() !== day
-  ) {
-    return null;
-  }
+  const next = new Date(changed.getTime() + NAME_CHANGE_DAYS * 24 * 60 * 60 * 1000);
 
-  const now = new Date();
-  let age = now.getUTCFullYear() - year;
-
-  const hadBirthday =
-    now.getUTCMonth() + 1 > month ||
-    (now.getUTCMonth() + 1 === month && now.getUTCDate() >= day);
-
-  if (!hadBirthday) age -= 1;
-
-  return age;
+  return next.getTime() > Date.now() ? next : null;
 }
 
 export async function GET() {
@@ -62,6 +46,9 @@ export async function GET() {
     middleName = parts.length > 2 ? parts.slice(1, -1).join(" ") : "";
   }
 
+  const hasName = Boolean(user.firstName && user.lastName);
+  const lockedUntil = hasName ? nameChangeAvailableAt(user.nameChangedAt) : null;
+
   return Response.json({
     firstName,
     middleName,
@@ -71,9 +58,11 @@ export async function GET() {
     emailVerified: user.emailVerified,
     isAdmin: isAdminEmail(user.email),
     hasProfile: Boolean(user.firstName && user.lastName && user.dateOfBirth),
+    nameChangeAvailableAt: lockedUntil ? lockedUntil.toISOString() : null,
   });
 }
 
+// Saves the name, the date of birth, or both — whichever is sent.
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
 
@@ -81,32 +70,100 @@ export async function POST(request: Request) {
     return Response.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  const user = await db.orm.public.User.where({ id: userId }).first();
+
+  if (!user) {
+    return Response.json({ error: "User not found." }, { status: 404 });
+  }
+
   const body = await request.json();
 
-  const check = checkName(body);
+  const updates: {
+    name?: string;
+    firstName?: string;
+    middleName?: string | null;
+    lastName?: string;
+    nameChangedAt?: string;
+    dateOfBirth?: string;
+    age?: number;
+  } = {};
 
-  if (!check.ok) {
-    return Response.json({ error: check.error }, { status: 400 });
+  const sendingName =
+    body.firstName !== undefined ||
+    body.middleName !== undefined ||
+    body.lastName !== undefined;
+
+  if (sendingName) {
+    const check = checkName(body);
+
+    if (!check.ok) {
+      return Response.json({ error: check.error }, { status: 400 });
+    }
+
+    const hasName = Boolean(user.firstName && user.lastName);
+
+    const unchanged =
+      hasName &&
+      user.firstName === check.firstName &&
+      (user.middleName ?? "") === check.middleName &&
+      user.lastName === check.lastName;
+
+    // Setting a name for the first time is free. After that it can only be
+    // changed once every 30 days. Saving the same name again changes nothing.
+    if (hasName && !unchanged) {
+      const next = nameChangeAvailableAt(user.nameChangedAt);
+
+      if (next) {
+        const date = next.toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
+
+        return Response.json(
+          {
+            error: `You can change your name once every ${NAME_CHANGE_DAYS} days. You can change it again on ${date}.`,
+          },
+          { status: 429 }
+        );
+      }
+
+      updates.nameChangedAt = new Date().toISOString();
+    }
+
+    if (!unchanged) {
+      updates.name = check.fullName;
+      updates.firstName = check.firstName;
+      updates.middleName = check.middleName || null;
+      updates.lastName = check.lastName;
+    }
   }
 
-  const dateOfBirth = String(body.dateOfBirth ?? "");
-  const age = ageFrom(dateOfBirth);
+  if (body.dateOfBirth !== undefined) {
+    const dateOfBirth = String(body.dateOfBirth);
+    const age = ageFrom(dateOfBirth);
 
-  if (age === null || age < 5 || age > 120) {
-    return Response.json(
-      { error: "Enter a valid date of birth." },
-      { status: 400 }
-    );
+    if (age === null || age > MAX_AGE) {
+      return Response.json(
+        { error: "Enter a valid date of birth." },
+        { status: 400 }
+      );
+    }
+
+    if (age < MIN_AGE) {
+      return Response.json(
+        { error: `You must be at least ${MIN_AGE} years old to use e-tracker.` },
+        { status: 400 }
+      );
+    }
+
+    updates.dateOfBirth = dateOfBirth;
+    updates.age = age;
   }
 
-  await db.orm.public.User.where({ id: userId }).update({
-    name: check.fullName,
-    firstName: check.firstName,
-    middleName: check.middleName || null,
-    lastName: check.lastName,
-    dateOfBirth,
-    age,
-  });
+  if (Object.keys(updates).length > 0) {
+    await db.orm.public.User.where({ id: userId }).update(updates);
+  }
 
   return Response.json({ success: true });
 }

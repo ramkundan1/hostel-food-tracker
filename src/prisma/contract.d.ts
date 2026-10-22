@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'b0ea2dc407752e0ab85fd8444572930bd5346ca9d1c109764b31242c2e7051df'>;
+  StorageHashBase<'53bf88a1088df6f9c0555f4aca7c1a558251aa97fcf1db4c40cd8cd27e6b0474'>;
 export type ExecutionHash =
   ExecutionHashBase<'9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24'>;
 export type ProfileHash =
@@ -344,6 +344,7 @@ export type FieldOutputTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly dateOfBirth: CodecTypes['pg/text@1']['output'] | null;
+      readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['output'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly pointsSpent: CodecTypes['pg/int4@1']['output'];
@@ -467,6 +468,7 @@ export type FieldInputTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly dateOfBirth: CodecTypes['pg/text@1']['input'] | null;
+      readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['input'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly pointsSpent: CodecTypes['pg/int4@1']['input'];
@@ -598,6 +600,7 @@ export type StorageColumnTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly middleName: CodecTypes['pg/text@1']['output'] | null;
       readonly name: CodecTypes['pg/text@1']['output'] | null;
+      readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['output'];
       readonly pointsSpent: CodecTypes['pg/int4@1']['output'];
       readonly resetToken: CodecTypes['pg/text@1']['output'] | null;
@@ -721,6 +724,7 @@ export type StorageColumnInputTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly middleName: CodecTypes['pg/text@1']['input'] | null;
       readonly name: CodecTypes['pg/text@1']['input'] | null;
+      readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly passwordHash: CodecTypes['pg/text@1']['input'];
       readonly pointsSpent: CodecTypes['pg/int4@1']['input'];
       readonly resetToken: CodecTypes['pg/text@1']['input'] | null;
@@ -752,6 +756,7 @@ export namespace Models {
     lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     age: CodecTypes['pg/int4@1']['output'] | null;
     dateOfBirth: CodecTypes['pg/text@1']['output'] | null;
+    nameChangedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     deleteToken: CodecTypes['pg/text@1']['output'] | null;
     deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     pointsSpent: CodecTypes['pg/int4@1']['output'];
@@ -1594,6 +1599,11 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly nameChangedAt: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: true;
+                };
                 readonly deleteToken: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -2387,6 +2397,13 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly nameChangedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly deleteToken: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -2517,6 +2534,7 @@ type ContractBase = Omit<
                 readonly lockedUntil: { readonly column: 'lockedUntil' };
                 readonly age: { readonly column: 'age' };
                 readonly dateOfBirth: { readonly column: 'dateOfBirth' };
+                readonly nameChangedAt: { readonly column: 'nameChangedAt' };
                 readonly deleteToken: { readonly column: 'deleteToken' };
                 readonly deleteTokenExpiresAt: { readonly column: 'deleteTokenExpiresAt' };
                 readonly pointsSpent: { readonly column: 'pointsSpent' };
