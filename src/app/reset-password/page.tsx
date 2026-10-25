@@ -5,6 +5,8 @@ import Brand from "@/components/Brand";
 import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PasswordInput from "@/components/PasswordInput";
+import { checkPasswordStrength, PASSWORD_HINT } from "@/lib/passwordRules";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -29,6 +31,13 @@ function ResetPasswordForm() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
+
+    const strength = checkPasswordStrength(password);
+
+    if (!strength.ok) {
+      setError(strength.error);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords don't match.");
@@ -71,24 +80,23 @@ function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        type="password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        placeholder="New password"
-        minLength={8}
-        required
-        className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-      />
+      <div>
+        <PasswordInput
+          value={password}
+          onChange={setPassword}
+          placeholder="New password"
+          autoComplete="new-password"
+          minLength={8}
+        />
+        <p className="mt-1.5 text-xs text-slate-400">{PASSWORD_HINT}</p>
+      </div>
 
-      <input
-        type="password"
+      <PasswordInput
         value={confirmPassword}
-        onChange={(event) => setConfirmPassword(event.target.value)}
+        onChange={setConfirmPassword}
         placeholder="Confirm new password"
+        autoComplete="new-password"
         minLength={8}
-        required
-        className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
 
       {error && (

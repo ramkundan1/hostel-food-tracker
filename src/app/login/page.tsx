@@ -1,6 +1,8 @@
 "use client";
 
 import Brand from "@/components/Brand";
+import PasswordInput from "@/components/PasswordInput";
+import { checkPasswordStrength, PASSWORD_HINT } from "@/lib/passwordRules";
 
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -92,6 +94,16 @@ export default function LoginPage() {
     setNeedsVerification(false);
     setRegisterMessage("");
     setResendMessage("");
+
+    if (mode === "register") {
+      const strength = checkPasswordStrength(password);
+
+      if (!strength.ok) {
+        setError(strength.error);
+        return;
+      }
+    }
+
     setLoading(true);
 
     const endpoint =
@@ -197,15 +209,18 @@ export default function LoginPage() {
             />
 
             {mode !== "forgot" && (
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Password"
-                minLength={8}
-                required
-                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
+              <div>
+                <PasswordInput
+                  value={password}
+                  onChange={setPassword}
+                  placeholder="Password"
+                  autoComplete={mode === "register" ? "new-password" : "current-password"}
+                  minLength={mode === "register" ? 8 : undefined}
+                />
+                {mode === "register" && (
+                  <p className="mt-1.5 text-xs text-slate-400">{PASSWORD_HINT}</p>
+                )}
+              </div>
             )}
 
             {mode === "login" && (

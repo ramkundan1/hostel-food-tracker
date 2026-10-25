@@ -684,7 +684,7 @@ const router = useRouter();
           <div className="flex items-center justify-between">
             <Brand linked={prices.meal !== null} onClick={() => setShowPriceSetup(false)} />
 
-            {prices.meal !== null && (
+            {prices.meal !== null ? (
               <button
                 onClick={() => {
                   setShowPriceSetup(false);
@@ -699,6 +699,13 @@ const router = useRouter();
               >
                 Back
               </button>
+            ) : (
+              <button
+                onClick={() => setShowPriceSetup(false)}
+                className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium hover:bg-slate-100"
+              >
+                Skip for now
+              </button>
             )}
           </div>
 
@@ -709,6 +716,13 @@ const router = useRouter();
           <p className="mt-2 text-slate-400">
             Set it once — prices stay saved until you decide to update them.
           </p>
+
+          {prices.meal === null && (
+            <p className="mt-1 text-sm text-slate-400">
+              You can skip this and set it later from Settings — you just
+              won&apos;t be able to log a meal until prices are set.
+            </p>
+          )}
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {(
@@ -825,6 +839,18 @@ const router = useRouter();
             </button>
           </div>
         </header>
+
+        {prices.meal === null && (
+          <button
+            onClick={() => setShowPriceSetup(true)}
+            className="mt-5 flex w-full items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-left transition-colors hover:bg-amber-100"
+          >
+            <span className="text-sm font-medium text-amber-800">
+              Set your meal prices to start logging meals
+            </span>
+            <span className="text-sm font-semibold text-amber-700">Set now →</span>
+          </button>
+        )}
 
         <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
           <div className="sm:grid sm:grid-cols-2 sm:items-center sm:gap-6">

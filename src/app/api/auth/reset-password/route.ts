@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID, scrypt } from "crypto";
 import { promisify } from "util";
 import { db } from "@/prisma/db";
+import { checkPasswordStrength } from "@/lib/passwordRules";
 
 const scryptAsync = promisify(scrypt);
 
@@ -18,11 +19,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
-        { status: 400 }
-      );
+    const strength = checkPasswordStrength(password);
+
+    if (!strength.ok) {
+      return NextResponse.json({ error: strength.error }, { status: 400 });
     }
 
     const user = await db.orm.public.User

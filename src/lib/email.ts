@@ -146,6 +146,15 @@ export async function sendDeleteAccountCode(
   );
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function sendFeedbackEmail(
   fromEmail: string,
   message: string
@@ -159,14 +168,17 @@ export async function sendFeedbackEmail(
     return { sent: false };
   }
 
+  // The message (and, defensively, the email) came from a user, so they must
+  // never be interpolated into the HTML unescaped — otherwise a crafted
+  // message could render as a real link or fake formatting in your inbox.
   return sendEmail(
     supportEmail,
     `e-tracker feedback from ${fromEmail}`,
     `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>New feedback</h2>
-        <p><strong>From:</strong> ${fromEmail}</p>
-        <p style="white-space: pre-wrap; border-left: 3px solid #f59e0b; padding-left: 12px;">${message}</p>
+        <p><strong>From:</strong> ${escapeHtml(fromEmail)}</p>
+        <p style="white-space: pre-wrap; border-left: 3px solid #f59e0b; padding-left: 12px;">${escapeHtml(message)}</p>
       </div>
     `,
     "feedback message",

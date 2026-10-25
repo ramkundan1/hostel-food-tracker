@@ -1,12 +1,29 @@
 import { NextResponse } from "next/server";
 import { db } from "@/prisma/db";
 import { getCurrentUserId, clearSession } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
   const userId = await getCurrentUserId();
 
   if (!userId) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  // A valid session alone must never be enough to delete the account — the
+  // emailed code is a second factor. Without a strict limit here, anyone
+  // holding a stolen session could brute-force all 1,000,000 codes.
+  const allowed = await checkRateLimit(
+    `delete-confirm:${userId}`,
+    3,
+    12 * 60 * 60 * 1000
+  );
+
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many attempts. Try again in a few hours." },
+      { status: 429 }
+    );
   }
 
   const body = await request.json().catch(() => ({}));

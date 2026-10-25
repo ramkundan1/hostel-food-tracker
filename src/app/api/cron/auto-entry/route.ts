@@ -7,9 +7,18 @@ import { isAdminEmail } from "@/lib/admin";
 // "Authorization: Bearer <CRON_SECRET>" automatically when CRON_SECRET is
 // set as an env var, so only Vercel's own scheduler can trigger this.
 export async function GET(request: Request) {
+  const secret = process.env.CRON_SECRET;
+
+  // If the secret were ever unset, the check below would silently compare
+  // against the literal string "Bearer undefined" — a value anyone could
+  // send. Refusing outright when it's unset closes that off entirely.
+  if (!secret) {
+    return Response.json({ error: "Not configured." }, { status: 500 });
+  }
+
   const auth = request.headers.get("authorization");
 
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (auth !== `Bearer ${secret}`) {
     return Response.json({ error: "Not authorized." }, { status: 401 });
   }
 
