@@ -18,6 +18,8 @@ model User {
   lockedUntil TimestamptzString?
   age Int?
   dateOfBirth String?
+  currency String @default("NPR")
+  calendarPreference String @default("nepali")
   nameChangedAt TimestamptzString?
   deleteToken String?
   deleteTokenExpiresAt TimestamptzString?

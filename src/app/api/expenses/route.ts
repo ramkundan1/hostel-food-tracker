@@ -2,6 +2,7 @@ import { db } from "@/prisma/db";
 import nepaliDateConverter from "nepali-date-converter";
 import { getCurrentUserId } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
@@ -35,9 +36,10 @@ export async function GET(request: Request) {
     return Response.json({ error: "Invalid month." }, { status: 400 });
   }
 
-  const [items, foodEntries] = await Promise.all([
+  const [items, foodEntries, user] = await Promise.all([
     db.orm.public.Expense.where({ userId, nepaliYear, nepaliMonth }).all(),
     db.orm.public.FoodEntry.where({ userId, nepaliYear, nepaliMonth }).all(),
+    db.orm.public.User.where({ id: userId }).first(),
   ]);
 
   items.sort((a, b) => b.nepaliDate - a.nepaliDate || b.id - a.id);
@@ -45,11 +47,14 @@ export async function GET(request: Request) {
   return Response.json({
     nepaliYear,
     nepaliMonth,
+    currency: user?.currency || DEFAULT_CURRENCY,
+    calendarPreference: user?.calendarPreference || "nepali",
     items: items.map((item) => ({
       id: item.id,
       description: item.description,
       amount: item.amount,
       nepaliDate: item.nepaliDate,
+      date: item.date,
     })),
     additionalTotal: roundMoney(items.reduce((sum, i) => sum + i.amount, 0)),
     foodTotal: roundMoney(foodEntries.reduce((sum, e) => sum + e.totalCost, 0)),

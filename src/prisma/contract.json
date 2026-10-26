@@ -1003,10 +1003,24 @@
                   "kind": "scalar"
                 }
               },
+              "calendarPreference": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "createdAt": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "currency": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -1248,8 +1262,14 @@
                 "autoLunchMeal": {
                   "column": "autoLunchMeal"
                 },
+                "calendarPreference": {
+                  "column": "calendarPreference"
+                },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "currency": {
+                  "column": "currency"
                 },
                 "dateOfBirth": {
                   "column": "dateOfBirth"
@@ -2121,6 +2141,15 @@
                   "nativeType": "bool",
                   "nullable": false
                 },
+                "calendarPreference": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "nepali"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -2128,6 +2157,15 @@
                     "kind": "function"
                   },
                   "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "currency": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "NPR"
+                  },
+                  "nativeType": "text",
                   "nullable": false
                 },
                 "dateOfBirth": {
@@ -2282,7 +2320,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "53bf88a1088df6f9c0555f4aca7c1a558251aa97fcf1db4c40cd8cd27e6b0474"
+    "storageHash": "829e8c517b226d4dcf0260d6027e8134c8aa540d2505be6de5a273a42a1d95be"
   },
   "execution": {
     "executionHash": "9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24",

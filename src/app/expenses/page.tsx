@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import nepaliDateConverter from "nepali-date-converter";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
 import NepaliDatePicker, {
@@ -11,23 +12,37 @@ import NepaliDatePicker, {
   todayNepali,
   type NepaliDateValue,
 } from "@/components/NepaliDatePicker";
+import { formatMoney, currencySymbol, DEFAULT_CURRENCY } from "@/lib/currency";
 
 type Item = {
   id: number;
   description: string;
   amount: number;
   nepaliDate: number;
+  date: string;
 };
 
 type MonthData = {
   items: Item[];
   additionalTotal: number;
   foodTotal: number;
+  currency: string;
+  calendarPreference: string;
 };
 
 const PREFERENCE_KEY = "e-tracker:include-food";
 
-const rs = (value: number) => `Rs. ${value.toFixed(2)}`;
+function englishDateLabel(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function todayEnglishString(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function ExpensesPage() {
   const router = useRouter();
@@ -43,6 +58,7 @@ export default function ExpensesPage() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState<NepaliDateValue>(() => todayNepali());
+  const [englishDate, setEnglishDate] = useState(() => todayEnglishString());
   const [error, setError] = useState("");
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -109,12 +125,21 @@ export default function ExpensesPage() {
       return;
     }
 
-    const dateProblem = nepaliDateError(date);
+    const useEnglish = data?.calendarPreference === "english";
 
-    if (dateProblem) {
-      setError(dateProblem);
+    if (!useEnglish) {
+      const dateProblem = nepaliDateError(date);
+
+      if (dateProblem) {
+        setError(dateProblem);
+        return;
+      }
+    } else if (!englishDate) {
+      setError("Pick a date.");
       return;
     }
+
+    const dateToSend = useEnglish ? englishDate : nepaliToAdString(date);
 
     setAdding(true);
 
@@ -124,7 +149,7 @@ export default function ExpensesPage() {
       body: JSON.stringify({
         description,
         amount: price,
-        date: nepaliToAdString(date),
+        date: dateToSend,
       }),
     });
 
@@ -139,14 +164,22 @@ export default function ExpensesPage() {
     setDescription("");
     setAmount("");
 
-    // Jump to the month the item belongs to so it's visible straight away.
-    setView({ year: date.year, month: date.month });
-    await load(date.year, date.month);
+    // The month navigator stays in the Nepali calendar either way, so jump
+    // there using whichever date was actually entered.
+    const target = useEnglish
+      ? (() => {
+          const bs = new nepaliDateConverter(new Date(dateToSend + "T00:00:00"));
+          return { year: bs.getYear(), month: bs.getMonth() };
+        })()
+      : { year: date.year, month: date.month };
+
+    setView(target);
+    await load(target.year, target.month);
   }
 
   async function removeItem(item: Item) {
     const confirmed = window.confirm(
-      `Remove "${item.description}" (${rs(item.amount)})?`
+      `Remove "${item.description}" (${formatMoney(item.amount, data?.currency ?? DEFAULT_CURRENCY)})?`
     );
 
     if (!confirmed) return;
@@ -173,7 +206,12 @@ export default function ExpensesPage() {
     );
   }
 
-  const total = data.additionalTotal + (includeFood ? data.foodTotal : 0);
+  const currency = data.currency || DEFAULT_CURRENCY;
+  const isNpr = currency === "NPR";
+  // Mixing a non-NPR currency with NPR-denominated food costs would produce
+  // a meaningless number, so the combined view only exists for NPR.
+  const effectiveIncludeFood = isNpr && includeFood;
+  const total = data.additionalTotal + (effectiveIncludeFood ? data.foodTotal : 0);
 
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
@@ -221,40 +259,49 @@ export default function ExpensesPage() {
         </div>
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-          <div
-            role="group"
-            aria-label="What to include in the total"
-            className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1"
-          >
-            <button
-              onClick={() => chooseMode(false)}
-              aria-pressed={!includeFood}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                !includeFood
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
+          {isNpr ? (
+            <div
+              role="group"
+              aria-label="What to include in the total"
+              className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1"
             >
-              Additional only
-            </button>
-            <button
-              onClick={() => chooseMode(true)}
-              aria-pressed={includeFood}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                includeFood
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              Additional + food
-            </button>
-          </div>
+              <button
+                onClick={() => chooseMode(false)}
+                aria-pressed={!includeFood}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  !includeFood
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Additional only
+              </button>
+              <button
+                onClick={() => chooseMode(true)}
+                aria-pressed={includeFood}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  includeFood
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Additional + food
+              </button>
+            </div>
+          ) : (
+            <p className="rounded-xl bg-white p-3 text-xs text-slate-500">
+              Showing your additional purchases in {currencySymbol(currency)}.
+              Food costs are tracked in NPR for everyone, so they aren&apos;t
+              combined here — change this in Settings if you&apos;d like NPR
+              instead.
+            </p>
+          )}
 
           <p className="mt-5 text-sm text-slate-500">
             Total for {NEPALI_MONTHS[view.month]}
           </p>
           <p className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-            {rs(total)}
+            {formatMoney(total, currency)}
           </p>
 
           <dl className="mt-5 space-y-2 text-sm">
@@ -262,21 +309,23 @@ export default function ExpensesPage() {
               <dt className="text-slate-500">
                 Additional purchases ({data.items.length})
               </dt>
-              <dd className="font-medium">{rs(data.additionalTotal)}</dd>
+              <dd className="font-medium">{formatMoney(data.additionalTotal, currency)}</dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">
-                Food — lunch &amp; dinner
-                {!includeFood && (
-                  <span className="ml-2 text-xs text-slate-400">
-                    (not included)
-                  </span>
-                )}
-              </dt>
-              <dd className={includeFood ? "font-medium" : "text-slate-400"}>
-                {rs(data.foodTotal)}
-              </dd>
-            </div>
+            {isNpr && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">
+                  Food — lunch &amp; dinner
+                  {!includeFood && (
+                    <span className="ml-2 text-xs text-slate-400">
+                      (not included)
+                    </span>
+                  )}
+                </dt>
+                <dd className={includeFood ? "font-medium" : "text-slate-400"}>
+                  {formatMoney(data.foodTotal, "NPR")}
+                </dd>
+              </div>
+            )}
           </dl>
         </section>
 
@@ -310,7 +359,7 @@ export default function ExpensesPage() {
                 htmlFor="amount"
                 className="mb-1.5 block text-sm font-medium text-slate-700"
               >
-                Price (Rs.)
+                Price ({currencySymbol(currency)})
               </label>
               <input
                 id="amount"
@@ -329,7 +378,17 @@ export default function ExpensesPage() {
               <p className="mb-1.5 text-sm font-medium text-slate-700">
                 Date bought
               </p>
-              <NepaliDatePicker value={date} onChange={setDate} />
+              {data.calendarPreference === "english" ? (
+                <input
+                  type="date"
+                  value={englishDate}
+                  max={todayEnglishString()}
+                  onChange={(e) => setEnglishDate(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              ) : (
+                <NepaliDatePicker value={date} onChange={setDate} />
+              )}
             </div>
 
             {error && (
@@ -368,12 +427,14 @@ export default function ExpensesPage() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.description}</p>
                   <p className="text-xs text-slate-400">
-                    {NEPALI_MONTHS[view.month]} {item.nepaliDate}
+                    {data.calendarPreference === "english"
+                      ? englishDateLabel(item.date)
+                      : `${NEPALI_MONTHS[view.month]} ${item.nepaliDate}`}
                   </p>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-3">
-                  <p className="font-semibold">{rs(item.amount)}</p>
+                  <p className="font-semibold">{formatMoney(item.amount, currency)}</p>
                   <button
                     onClick={() => removeItem(item)}
                     disabled={deletingId === item.id}

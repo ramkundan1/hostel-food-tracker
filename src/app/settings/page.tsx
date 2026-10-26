@@ -3,12 +3,13 @@
 import { FormEvent, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import nepaliDateConverter from "nepali-date-converter";
-import { Gift, Utensils } from "lucide-react";
+import { Gift, Utensils, Globe } from "lucide-react";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
 import ProfileForm from "@/components/ProfileForm";
 import { NEPALI_MONTHS } from "@/components/NepaliDatePicker";
 import { ageFrom, MIN_AGE } from "@/lib/age";
+import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/currency";
 
 type Profile = {
   firstName: string;
@@ -21,7 +22,7 @@ type Profile = {
   nameChangeAvailableAt: string | null;
 };
 
-type View = "home" | "profile" | "name" | "dob" | "email" | "manage" | "help";
+type View = "home" | "profile" | "name" | "dob" | "email" | "manage" | "help" | "preferences";
 
 const TITLES: Record<View, string> = {
   home: "Settings",
@@ -31,6 +32,7 @@ const TITLES: Record<View, string> = {
   email: "Email",
   manage: "Manage your account",
   help: "Help & feedback",
+  preferences: "Currency & calendar",
 };
 
 // Where the back button on each screen goes.
@@ -42,6 +44,7 @@ const PARENTS: Record<View, View | null> = {
   email: "profile",
   manage: "home",
   help: "home",
+  preferences: "home",
 };
 
 function SvgIcon({ className, children }: { className?: string; children: ReactNode }) {
@@ -185,6 +188,12 @@ export default function SettingsPage() {
   const [deleteCode, setDeleteCode] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
+  const [calendarPreference, setCalendarPreference] = useState("nepali");
+  const [prefSaving, setPrefSaving] = useState(false);
+  const [prefSaved, setPrefSaved] = useState(false);
+  const [prefError, setPrefError] = useState("");
+
   async function loadProfile() {
     const res = await fetch("/api/profile");
 
@@ -197,8 +206,40 @@ export default function SettingsPage() {
     setLoading(false);
   }
 
+  async function loadPreferences() {
+    const res = await fetch("/api/preferences");
+
+    if (res.ok) {
+      const data = await res.json();
+      setCurrency(data.currency ?? DEFAULT_CURRENCY);
+      setCalendarPreference(data.calendarPreference ?? "nepali");
+    }
+  }
+
+  async function savePreferences() {
+    setPrefSaving(true);
+    setPrefError("");
+
+    const res = await fetch("/api/preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currency, calendarPreference }),
+    });
+
+    setPrefSaving(false);
+
+    if (!res.ok) {
+      setPrefError("Couldn't save. Try again.");
+      return;
+    }
+
+    setPrefSaved(true);
+    setTimeout(() => setPrefSaved(false), 2500);
+  }
+
   useEffect(() => {
     loadProfile();
+    loadPreferences();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -392,6 +433,12 @@ export default function SettingsPage() {
                 title="Manage your account"
                 text="Reset your password or delete your account"
                 onClick={() => go("manage")}
+              />
+              <NavRow
+                icon={Globe}
+                title="Currency & calendar"
+                text="How amounts and dates are shown to you"
+                onClick={() => go("preferences")}
               />
             </Group>
 
@@ -621,6 +668,85 @@ export default function SettingsPage() {
               )}
             </div>
           </>
+        )}
+
+        {view === "preferences" && (
+          <Card>
+            <p className="text-sm text-slate-500">
+              This only changes how things look for you — your meal prices
+              and everyone else&apos;s entries are unaffected. Amounts are
+              not converted between currencies; this just changes which
+              symbol is shown on what you type.
+            </p>
+
+            <div className="mt-4">
+              <label
+                htmlFor="currency"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Currency
+              </label>
+              <select
+                id="currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+                {Object.entries(CURRENCIES).map(([code, info]) => (
+                  <option key={code} value={code}>
+                    {info.label}
+                  </option>
+                ))}
+              </select>
+              {currency !== "NPR" && (
+                <p className="mt-1.5 text-xs text-amber-600">
+                  Food costs are tracked in NPR for everyone, so on the
+                  Expenses page the combined "food + purchases" total is
+                  turned off for non-NPR currencies — only your own
+                  purchases are shown, in {CURRENCIES[currency]?.symbol}.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <label
+                htmlFor="calendarPreference"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Calendar for entering expenses
+              </label>
+              <select
+                id="calendarPreference"
+                value={calendarPreference}
+                onChange={(e) => setCalendarPreference(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="nepali">Nepali (Bikram Sambat)</option>
+                <option value="english">English (Gregorian)</option>
+              </select>
+              <p className="mt-1.5 text-xs text-slate-400">
+                Meals are still logged by Nepali date for everyone — this
+                only changes the date picker on the Expenses page.
+              </p>
+            </div>
+
+            {prefError && (
+              <p className="mt-3 text-sm text-red-600">{prefError}</p>
+            )}
+
+            <div className="mt-4 flex items-center gap-3">
+              <button
+                onClick={savePreferences}
+                disabled={prefSaving}
+                className="rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                {prefSaving ? "Saving..." : "Save"}
+              </button>
+              {prefSaved && (
+                <span className="text-sm text-emerald-600">Saved</span>
+              )}
+            </div>
+          </Card>
         )}
 
         {view === "help" && (

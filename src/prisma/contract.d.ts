@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'53bf88a1088df6f9c0555f4aca7c1a558251aa97fcf1db4c40cd8cd27e6b0474'>;
+  StorageHashBase<'829e8c517b226d4dcf0260d6027e8134c8aa540d2505be6de5a273a42a1d95be'>;
 export type ExecutionHash =
   ExecutionHashBase<'9b87eeb2a55a4d50edae71ea5d59e6ff2ed4c09c5ef286eadd5b55a5a210da24'>;
 export type ProfileHash =
@@ -344,6 +344,8 @@ export type FieldOutputTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly age: CodecTypes['pg/int4@1']['output'] | null;
       readonly dateOfBirth: CodecTypes['pg/text@1']['output'] | null;
+      readonly currency: CodecTypes['pg/text@1']['output'];
+      readonly calendarPreference: CodecTypes['pg/text@1']['output'];
       readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['output'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
@@ -468,6 +470,8 @@ export type FieldInputTypes = {
       readonly lockedUntil: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly age: CodecTypes['pg/int4@1']['input'] | null;
       readonly dateOfBirth: CodecTypes['pg/text@1']['input'] | null;
+      readonly currency: CodecTypes['pg/text@1']['input'];
+      readonly calendarPreference: CodecTypes['pg/text@1']['input'];
       readonly nameChangedAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['input'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
@@ -586,7 +590,9 @@ export type StorageColumnTypes = {
       readonly autoLunchCurd: CodecTypes['pg/bool@1']['output'];
       readonly autoLunchEgg: CodecTypes['pg/bool@1']['output'];
       readonly autoLunchMeal: CodecTypes['pg/bool@1']['output'];
+      readonly calendarPreference: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly currency: CodecTypes['pg/text@1']['output'];
       readonly dateOfBirth: CodecTypes['pg/text@1']['output'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['output'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
@@ -710,7 +716,9 @@ export type StorageColumnInputTypes = {
       readonly autoLunchCurd: CodecTypes['pg/bool@1']['input'];
       readonly autoLunchEgg: CodecTypes['pg/bool@1']['input'];
       readonly autoLunchMeal: CodecTypes['pg/bool@1']['input'];
+      readonly calendarPreference: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly currency: CodecTypes['pg/text@1']['input'];
       readonly dateOfBirth: CodecTypes['pg/text@1']['input'] | null;
       readonly deleteToken: CodecTypes['pg/text@1']['input'] | null;
       readonly deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
@@ -756,6 +764,8 @@ export namespace Models {
     lockedUntil: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     age: CodecTypes['pg/int4@1']['output'] | null;
     dateOfBirth: CodecTypes['pg/text@1']['output'] | null;
+    currency: CodecTypes['pg/text@1']['output'];
+    calendarPreference: CodecTypes['pg/text@1']['output'];
     nameChangedAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
     deleteToken: CodecTypes['pg/text@1']['output'] | null;
     deleteTokenExpiresAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
@@ -1599,6 +1609,24 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly currency: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'NPR'>;
+                  };
+                };
+                readonly calendarPreference: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'nepali'>;
+                  };
+                };
                 readonly nameChangedAt: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-string@1';
@@ -2397,6 +2425,14 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly currency: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly calendarPreference: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly nameChangedAt: {
                 readonly nullable: true;
                 readonly type: {
@@ -2534,6 +2570,8 @@ type ContractBase = Omit<
                 readonly lockedUntil: { readonly column: 'lockedUntil' };
                 readonly age: { readonly column: 'age' };
                 readonly dateOfBirth: { readonly column: 'dateOfBirth' };
+                readonly currency: { readonly column: 'currency' };
+                readonly calendarPreference: { readonly column: 'calendarPreference' };
                 readonly nameChangedAt: { readonly column: 'nameChangedAt' };
                 readonly deleteToken: { readonly column: 'deleteToken' };
                 readonly deleteTokenExpiresAt: { readonly column: 'deleteTokenExpiresAt' };
