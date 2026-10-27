@@ -54,15 +54,38 @@ export function nepaliToAdString(v: NepaliDateValue): string {
   return `${d.getFullYear()}-${month}-${day}`;
 }
 
+// The reverse: an English "YYYY-MM-DD" string to its Nepali equivalent.
+export function adStringToNepali(adDate: string): NepaliDateValue {
+  const bs = new nepaliDateConverter(new Date(adDate + "T00:00:00"));
+  return { year: bs.getYear(), month: bs.getMonth(), day: bs.getDate() };
+}
+
+export function formatAdDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+export function formatNepaliDate(v: NepaliDateValue): string {
+  return `${NEPALI_MONTHS[v.month]} ${v.day}, ${v.year}`;
+}
+
 const selectClass =
   "w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
 
 export default function NepaliDatePicker({
   value,
   onChange,
+  showAdEquivalent = false,
 }: {
   value: NepaliDateValue;
   onChange: (next: NepaliDateValue) => void;
+  // Shows "≈ <English date> (AD)" beneath the picker, mirroring how the
+  // dashboard's own date picker already works — useful wherever someone
+  // might want to double check which real-world day they've picked.
+  showAdEquivalent?: boolean;
 }) {
   const today = useMemo(() => todayNepali(), []);
   const years = Array.from({ length: 11 }, (_, i) => today.year - 10 + i);
@@ -111,7 +134,15 @@ export default function NepaliDatePicker({
         </select>
       </div>
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error ? (
+        <p className="mt-2 text-sm text-red-600">{error}</p>
+      ) : (
+        showAdEquivalent && (
+          <p className="mt-2 text-sm text-slate-500">
+            ≈ {formatAdDate(new nepaliDateConverter(value.year, value.month, value.day).toJsDate())} (AD)
+          </p>
+        )
+      )}
     </div>
   );
 }

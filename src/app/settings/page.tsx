@@ -189,6 +189,9 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError] = useState("");
 
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
+  // The currency actually saved on the server, so a change can be detected
+  // and confirmed before it's applied.
+  const [savedCurrency, setSavedCurrency] = useState(DEFAULT_CURRENCY);
   const [calendarPreference, setCalendarPreference] = useState("nepali");
   const [prefSaving, setPrefSaving] = useState(false);
   const [prefSaved, setPrefSaved] = useState(false);
@@ -211,12 +214,30 @@ export default function SettingsPage() {
 
     if (res.ok) {
       const data = await res.json();
-      setCurrency(data.currency ?? DEFAULT_CURRENCY);
+      const loadedCurrency = data.currency ?? DEFAULT_CURRENCY;
+      setCurrency(loadedCurrency);
+      setSavedCurrency(loadedCurrency);
       setCalendarPreference(data.calendarPreference ?? "nepali");
     }
   }
 
   async function savePreferences() {
+    // Amounts are never converted — changing currency only changes which
+    // symbol is shown, so every expense already entered this month (and
+    // every other month) will immediately display under the new symbol.
+    // That's easy to misread as an actual conversion, so it's confirmed
+    // explicitly before being saved.
+    if (currency !== savedCurrency) {
+      const confirmed = window.confirm(
+        `Switch your currency to ${CURRENCIES[currency]?.label ?? currency}?\n\n` +
+          "This doesn't convert any amounts — every expense you've already " +
+          "entered will simply be shown with the new symbol instead, in " +
+          "every month, not just this one."
+      );
+
+      if (!confirmed) return;
+    }
+
     setPrefSaving(true);
     setPrefError("");
 
@@ -233,6 +254,7 @@ export default function SettingsPage() {
       return;
     }
 
+    setSavedCurrency(currency);
     setPrefSaved(true);
     setTimeout(() => setPrefSaved(false), 2500);
   }

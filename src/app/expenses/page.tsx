@@ -1,14 +1,16 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import nepaliDateConverter from "nepali-date-converter";
+import { Pencil, Trash2, X } from "lucide-react";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
 import NepaliDatePicker, {
   NEPALI_MONTHS,
   nepaliDateError,
   nepaliToAdString,
+  adStringToNepali,
+  formatNepaliDate,
   todayNepali,
   type NepaliDateValue,
 } from "@/components/NepaliDatePicker";
@@ -62,6 +64,9 @@ export default function ExpensesPage() {
   const [error, setError] = useState("");
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  // Set while editing an existing item; the same form is reused for both.
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const descriptionRef = useRef<HTMLInputElement>(null);
 
   const current = todayNepali();
   const isCurrentMonth =
@@ -101,12 +106,36 @@ export default function ExpensesPage() {
     }
   }
 
+  function resetDateToToday() {
+    setDate(todayNepali());
+    setEnglishDate(todayEnglishString());
+  }
+
   function chooseView(year: number, month: number) {
     // Never let the view move past the current month.
     const safeMonth = year === current.year && month > current.month ? current.month : month;
 
     setView({ year, month: safeMonth });
     load(year, safeMonth);
+  }
+
+  function startEdit(item: Item) {
+    setEditingId(item.id);
+    setDescription(item.description);
+    setAmount(String(item.amount));
+    setEnglishDate(item.date.slice(0, 10));
+    setDate(adStringToNepali(item.date.slice(0, 10)));
+    setError("");
+    descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    descriptionRef.current?.focus();
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setDescription("");
+    setAmount("");
+    resetDateToToday();
+    setError("");
   }
 
   async function addItem(event: FormEvent) {
@@ -144,37 +173,41 @@ export default function ExpensesPage() {
     setAdding(true);
 
     const res = await fetch("/api/expenses", {
-      method: "POST",
+      method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        description,
-        amount: price,
-        date: dateToSend,
-      }),
+      body: JSON.stringify(
+        editingId
+          ? { id: editingId, description, amount: price, date: dateToSend }
+          : { description, amount: price, date: dateToSend }
+      ),
     });
 
     const json = await res.json();
     setAdding(false);
 
     if (!res.ok) {
-      setError(json.error ?? "Couldn't add that. Try again.");
+      setError(json.error ?? "Couldn't save that. Try again.");
       return;
     }
 
+    const wasEditing = editingId !== null;
+
     setDescription("");
     setAmount("");
+    setEditingId(null);
 
     // The month navigator stays in the Nepali calendar either way, so jump
     // there using whichever date was actually entered.
-    const target = useEnglish
-      ? (() => {
-          const bs = new nepaliDateConverter(new Date(dateToSend + "T00:00:00"));
-          return { year: bs.getYear(), month: bs.getMonth() };
-        })()
-      : { year: date.year, month: date.month };
+    const target = useEnglish ? adStringToNepali(dateToSend) : date;
 
-    setView(target);
+    setView({ year: target.year, month: target.month });
     await load(target.year, target.month);
+
+    // Keep the flow going for someone logging several receipts in a row.
+    if (!wasEditing) {
+      resetDateToToday();
+      descriptionRef.current?.focus();
+    }
   }
 
   async function removeItem(item: Item) {
@@ -195,6 +228,8 @@ export default function ExpensesPage() {
       return;
     }
 
+    if (editingId === item.id) cancelEdit();
+
     await load(view.year, view.month);
   }
 
@@ -208,10 +243,7 @@ export default function ExpensesPage() {
 
   const currency = data.currency || DEFAULT_CURRENCY;
   const isNpr = currency === "NPR";
-  // Mixing a non-NPR currency with NPR-denominated food costs would produce
-  // a meaningless number, so the combined view only exists for NPR.
-  const effectiveIncludeFood = isNpr && includeFood;
-  const total = data.additionalTotal + (effectiveIncludeFood ? data.foodTotal : 0);
+  const total = data.additionalTotal + (includeFood ? data.foodTotal : 0);
 
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
@@ -259,41 +291,40 @@ export default function ExpensesPage() {
         </div>
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-          {isNpr ? (
-            <div
-              role="group"
-              aria-label="What to include in the total"
-              className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1"
+          <div
+            role="group"
+            aria-label="What to include in the total"
+            className="grid grid-cols-2 gap-1 rounded-xl bg-white p-1"
+          >
+            <button
+              onClick={() => chooseMode(false)}
+              aria-pressed={!includeFood}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                !includeFood
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
             >
-              <button
-                onClick={() => chooseMode(false)}
-                aria-pressed={!includeFood}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  !includeFood
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                Additional only
-              </button>
-              <button
-                onClick={() => chooseMode(true)}
-                aria-pressed={includeFood}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  includeFood
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                Additional + food
-              </button>
-            </div>
-          ) : (
-            <p className="rounded-xl bg-white p-3 text-xs text-slate-500">
-              Showing your additional purchases in {currencySymbol(currency)}.
-              Food costs are tracked in NPR for everyone, so they aren&apos;t
-              combined here — change this in Settings if you&apos;d like NPR
-              instead.
+              Additional only
+            </button>
+            <button
+              onClick={() => chooseMode(true)}
+              aria-pressed={includeFood}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                includeFood
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              Additional + food
+            </button>
+          </div>
+
+          {!isNpr && includeFood && (
+            <p className="mt-2 rounded-xl bg-white p-3 text-xs text-slate-500">
+              Your purchases are in {currencySymbol(currency)} and food is
+              tracked in NPR for everyone — the total below adds the two
+              numbers together as-is, with no currency conversion.
             </p>
           )}
 
@@ -311,29 +342,45 @@ export default function ExpensesPage() {
               </dt>
               <dd className="font-medium">{formatMoney(data.additionalTotal, currency)}</dd>
             </div>
-            {isNpr && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">
-                  Food — lunch &amp; dinner
-                  {!includeFood && (
-                    <span className="ml-2 text-xs text-slate-400">
-                      (not included)
-                    </span>
-                  )}
-                </dt>
-                <dd className={includeFood ? "font-medium" : "text-slate-400"}>
-                  {formatMoney(data.foodTotal, "NPR")}
-                </dd>
-              </div>
-            )}
+            <div className="flex justify-between gap-4">
+              <dt className="text-slate-500">
+                Food — lunch &amp; dinner
+                {!includeFood && (
+                  <span className="ml-2 text-xs text-slate-400">
+                    (not included)
+                  </span>
+                )}
+              </dt>
+              <dd className={includeFood ? "font-medium" : "text-slate-400"}>
+                {formatMoney(data.foodTotal, "NPR")}
+              </dd>
+            </div>
           </dl>
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 p-5">
-          <h2 className="font-semibold">Add a purchase</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Clothes, equipment, anything you bought besides your daily meals.
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold">
+                {editingId ? "Edit purchase" : "Add a purchase"}
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {editingId
+                  ? "Update the details below and save."
+                  : "Clothes, equipment, anything you bought besides your daily meals."}
+              </p>
+            </div>
+            {editingId && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                aria-label="Cancel editing"
+                className="shrink-0 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
 
           <form onSubmit={addItem} className="mt-4 space-y-4">
             <div>
@@ -344,6 +391,7 @@ export default function ExpensesPage() {
                 What did you buy?
               </label>
               <input
+                ref={descriptionRef}
                 id="description"
                 type="text"
                 value={description}
@@ -375,19 +423,35 @@ export default function ExpensesPage() {
             </div>
 
             <div>
-              <p className="mb-1.5 text-sm font-medium text-slate-700">
-                Date bought
-              </p>
+              <div className="mb-1.5 flex items-center justify-between">
+                <p className="text-sm font-medium text-slate-700">
+                  Date bought
+                </p>
+                <button
+                  type="button"
+                  onClick={resetDateToToday}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  Today
+                </button>
+              </div>
               {data.calendarPreference === "english" ? (
-                <input
-                  type="date"
-                  value={englishDate}
-                  max={todayEnglishString()}
-                  onChange={(e) => setEnglishDate(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
+                <div>
+                  <input
+                    type="date"
+                    value={englishDate}
+                    max={todayEnglishString()}
+                    onChange={(e) => setEnglishDate(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                  {englishDate && (
+                    <p className="mt-2 text-sm text-slate-500">
+                      ≈ {formatNepaliDate(adStringToNepali(englishDate))} (BS)
+                    </p>
+                  )}
+                </div>
               ) : (
-                <NepaliDatePicker value={date} onChange={setDate} />
+                <NepaliDatePicker value={date} onChange={setDate} showAdEquivalent />
               )}
             </div>
 
@@ -402,7 +466,9 @@ export default function ExpensesPage() {
               disabled={adding}
               className="w-full rounded-full bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
             >
-              {adding ? "Adding..." : "Add purchase"}
+              {adding
+                ? (editingId ? "Saving..." : "Adding...")
+                : (editingId ? "Save changes" : "Add purchase")}
             </button>
           </form>
         </section>
@@ -422,7 +488,11 @@ export default function ExpensesPage() {
             {data.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"
+                className={`flex items-center justify-between gap-3 rounded-xl border p-3 ${
+                  editingId === item.id
+                    ? "border-blue-300 bg-blue-50"
+                    : "border-slate-200"
+                }`}
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.description}</p>
@@ -433,14 +503,22 @@ export default function ExpensesPage() {
                   </p>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-3">
-                  <p className="font-semibold">{formatMoney(item.amount, currency)}</p>
+                <div className="flex shrink-0 items-center gap-2">
+                  <p className="mr-1 font-semibold">{formatMoney(item.amount, currency)}</p>
+                  <button
+                    onClick={() => startEdit(item)}
+                    aria-label={`Edit ${item.description}`}
+                    className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
                   <button
                     onClick={() => removeItem(item)}
                     disabled={deletingId === item.id}
-                    className="text-sm text-red-600 underline disabled:opacity-50"
+                    aria-label={`Remove ${item.description}`}
+                    className="rounded-full p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                   >
-                    {deletingId === item.id ? "..." : "Remove"}
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
