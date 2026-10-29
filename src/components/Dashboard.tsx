@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
 import { Utensils, Egg, Milk, Drumstick, Trophy, Soup, Moon, Settings, Wallet } from "lucide-react";
+import { adStringToNepali, nepaliToAdString } from "@/components/NepaliDatePicker";
 
 type Prices = {
   meal: number | null;
@@ -82,6 +83,15 @@ function formatNepaliDate(year: number, monthIndex: number, day: number) {
 
 // English (AD) equivalent, shown as secondary reference next to the
 // primary Nepali date picker.
+// For the "Spent so far" heading when the viewer prefers English: the
+// English month that the 1st of this Nepali month falls in. An approximation
+// by nature (the two calendars' months don't line up exactly), used for
+// display only — nothing about how data is grouped or stored changes.
+function formatEnglishMonthLabel(nepaliYear: number, nepaliMonthIndex: number) {
+  const firstDay = new nepaliDateConverter(nepaliYear, nepaliMonthIndex, 1).toJsDate();
+  return firstDay.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
 function formatAdDate(date: Date) {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -148,6 +158,7 @@ const router = useRouter();
     new Date().getHours() >= 15 ? "dinner" : "lunch"
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [calendarPreference, setCalendarPreference] = useState("nepali");
   const [showMonthlyReport, setShowMonthlyReport] = useState(false);
 
   const [months, setMonths] = useState<
@@ -220,10 +231,11 @@ const router = useRouter();
     async function loadData() {
       // Ask for everything at once. Waiting for each answer before asking
       // for the next one meant five round trips to the server in a row.
-      const [profileRes, priceRes, summaryRes] = await Promise.all([
+      const [profileRes, priceRes, summaryRes, preferencesRes] = await Promise.all([
         fetch("/api/profile"),
         fetch("/api/food-price"),
         fetch("/api/food-summary"),
+        fetch("/api/preferences"),
       ]);
 
       if (
@@ -233,6 +245,11 @@ const router = useRouter();
       ) {
         router.push("/");
         return;
+      }
+
+      if (preferencesRes.ok) {
+        const preferencesData = await preferencesRes.json();
+        setCalendarPreference(preferencesData.calendarPreference ?? "nepali");
       }
 
       const profileData = await profileRes.json();
@@ -667,7 +684,10 @@ const router = useRouter();
     nepaliMonthIndex === todayNepali.getMonth() &&
     nepaliDay === todayNepali.getDate();
 
-  const selectedLabel = `${NEPALI_MONTHS[nepaliMonthIndex]} ${nepaliDay}, ${nepaliYear}`;
+  const selectedLabel =
+    calendarPreference === "english"
+      ? formatAdDate(selectedDateInfo.adDate)
+      : `${NEPALI_MONTHS[nepaliMonthIndex]} ${nepaliDay}, ${nepaliYear}`;
 
   if (loading) {
     return (
@@ -791,7 +811,9 @@ const router = useRouter();
             <Brand onClick={goHome} />
 
             <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {formatNepaliMonth(summary.nepaliYear, summary.nepaliMonth)}
+              {calendarPreference === "english"
+                ? formatEnglishMonthLabel(summary.nepaliYear, summary.nepaliMonth)
+                : formatNepaliMonth(summary.nepaliYear, summary.nepaliMonth)}
             </h1>
           </div>
 
@@ -893,50 +915,79 @@ const router = useRouter();
 
           {showDatePicker && editingEntryId === null && (
             <div className="mt-4 border-t border-slate-200 pt-4">
-              <div className="grid grid-cols-3 gap-2">
-                <select
-                  value={nepaliYear}
-                  onChange={(e) => setNepaliYear(Number(e.target.value))}
-                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
-                    (year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    )
+              {calendarPreference === "english" ? (
+                <>
+                  <input
+                    type="date"
+                    value={nepaliToAdString({
+                      year: nepaliYear,
+                      month: nepaliMonthIndex,
+                      day: nepaliDay,
+                    })}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => {
+                      if (!e.target.value) return;
+                      const bs = adStringToNepali(e.target.value);
+                      setNepaliYear(bs.year);
+                      setNepaliMonthIndex(bs.month);
+                      setNepaliDay(bs.day);
+                    }}
+                    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                  {!selectedDateInfo.invalidReason && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      ≈ {formatNepaliDate(nepaliYear, nepaliMonthIndex, nepaliDay)} (BS)
+                    </p>
                   )}
-                </select>
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-2">
+                    <select
+                      value={nepaliYear}
+                      onChange={(e) => setNepaliYear(Number(e.target.value))}
+                      className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    >
+                      {Array.from({ length: 11 }, (_, i) => todayNepali.getYear() - 10 + i).map(
+                        (year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        )
+                      )}
+                    </select>
 
-                <select
-                  value={nepaliMonthIndex}
-                  onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
-                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  {NEPALI_MONTHS.map((name, index) => (
-                    <option key={name} value={index}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
+                    <select
+                      value={nepaliMonthIndex}
+                      onChange={(e) => setNepaliMonthIndex(Number(e.target.value))}
+                      className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    >
+                      {NEPALI_MONTHS.map((name, index) => (
+                        <option key={name} value={index}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
 
-                <select
-                  value={nepaliDay}
-                  onChange={(e) => setNepaliDay(Number(e.target.value))}
-                  className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <select
+                      value={nepaliDay}
+                      onChange={(e) => setNepaliDay(Number(e.target.value))}
+                      className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    >
+                      {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
+                        <option key={day} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              {!selectedDateInfo.invalidReason && (
-                <p className="mt-2 text-xs text-slate-500">
-                  ≈ {formatAdDate(selectedDateInfo.adDate)} (AD)
-                </p>
+                  {!selectedDateInfo.invalidReason && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      ≈ {formatAdDate(selectedDateInfo.adDate)} (AD)
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}

@@ -418,6 +418,28 @@ export default function SettingsPage() {
 
         {view === "home" && (
           <>
+            <SectionTitle>Account details</SectionTitle>
+            <Group>
+              <NavRow
+                icon={UserIcon}
+                title="Profile"
+                text="Name, date of birth and email"
+                onClick={() => go("profile")}
+              />
+              <NavRow
+                icon={LockIcon}
+                title="Manage your account"
+                text="Reset your password or delete your account"
+                onClick={() => go("manage")}
+              />
+              <NavRow
+                icon={Globe}
+                title="Currency & calendar"
+                text="How amounts and dates are shown to you"
+                onClick={() => go("preferences")}
+              />
+            </Group>
+
             <SectionTitle>Shortcuts</SectionTitle>
             <Group>
               <NavRow
@@ -440,28 +462,6 @@ export default function SettingsPage() {
                   onClick={() => router.push("/admin")}
                 />
               )}
-            </Group>
-
-            <SectionTitle>Account details</SectionTitle>
-            <Group>
-              <NavRow
-                icon={UserIcon}
-                title="Profile"
-                text="Name, date of birth and email"
-                onClick={() => go("profile")}
-              />
-              <NavRow
-                icon={LockIcon}
-                title="Manage your account"
-                text="Reset your password or delete your account"
-                onClick={() => go("manage")}
-              />
-              <NavRow
-                icon={Globe}
-                title="Currency & calendar"
-                text="How amounts and dates are shown to you"
-                onClick={() => go("preferences")}
-              />
             </Group>
 
             <SectionTitle>Support</SectionTitle>

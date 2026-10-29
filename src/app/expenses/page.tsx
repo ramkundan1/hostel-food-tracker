@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import nepaliDateConverter from "nepali-date-converter";
 import { Pencil, Trash2, X } from "lucide-react";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
@@ -44,6 +45,11 @@ function englishDateLabel(iso: string): string {
 
 function todayEnglishString(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function englishMonthName(year: number, monthIndex: number): string {
+  const firstDay = new nepaliDateConverter(year, monthIndex, 1).toJsDate();
+  return firstDay.toLocaleDateString("en-US", { month: "long" });
 }
 
 export default function ExpensesPage() {
@@ -271,7 +277,9 @@ export default function ExpensesPage() {
                 value={index}
                 disabled={view.year === current.year && index > current.month}
               >
-                {name}
+                {data.calendarPreference === "english"
+                  ? englishMonthName(view.year, index)
+                  : name}
               </option>
             ))}
           </select>
@@ -329,7 +337,10 @@ export default function ExpensesPage() {
           )}
 
           <p className="mt-5 text-sm text-slate-500">
-            Total for {NEPALI_MONTHS[view.month]}
+            Total for{" "}
+            {data.calendarPreference === "english"
+              ? englishMonthName(view.year, view.month)
+              : NEPALI_MONTHS[view.month]}
           </p>
           <p className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             {formatMoney(total, currency)}
@@ -475,7 +486,10 @@ export default function ExpensesPage() {
 
         <section className="mt-6">
           <h2 className="font-display text-xl font-semibold tracking-tight">
-            {NEPALI_MONTHS[view.month]} purchases
+            {data.calendarPreference === "english"
+              ? englishMonthName(view.year, view.month)
+              : NEPALI_MONTHS[view.month]}{" "}
+            purchases
           </h2>
 
           <div className="mt-3 space-y-2">
