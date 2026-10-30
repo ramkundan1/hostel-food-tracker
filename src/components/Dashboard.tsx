@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import nepaliDateConverter from "nepali-date-converter";
 import { Utensils, Egg, Milk, Drumstick, Trophy, Soup, Moon, Settings, Wallet } from "lucide-react";
 import { adStringToNepali, nepaliToAdString } from "@/components/NepaliDatePicker";
+import { formatMoney, DEFAULT_CURRENCY } from "@/lib/currency";
 
 type Prices = {
   meal: number | null;
@@ -159,6 +160,7 @@ const router = useRouter();
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [calendarPreference, setCalendarPreference] = useState("nepali");
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   const [showMonthlyReport, setShowMonthlyReport] = useState(false);
 
   const [months, setMonths] = useState<
@@ -250,6 +252,7 @@ const router = useRouter();
       if (preferencesRes.ok) {
         const preferencesData = await preferencesRes.json();
         setCalendarPreference(preferencesData.calendarPreference ?? "nepali");
+        setCurrency(preferencesData.currency ?? DEFAULT_CURRENCY);
       }
 
       const profileData = await profileRes.json();
@@ -791,6 +794,7 @@ const router = useRouter();
         months={months}
         selectedMonth={selectedMonth}
         selectedSummary={selectedSummary}
+        currency={currency}
         onBack={() => {
           setShowMonthlyReport(false);
           setSelectedMonth(null);
@@ -882,7 +886,7 @@ const router = useRouter();
               </p>
 
               <p className="mt-1 text-4xl font-semibold tracking-tight sm:text-5xl">
-                Rs. {summary.totalExpense.toFixed(2)}
+                {formatMoney(summary.totalExpense, currency)}
               </p>
             </div>
 
@@ -1053,6 +1057,7 @@ const router = useRouter();
             onCancelEdit={() => cancelEdit("lunch")}
             saving={savingLunch}
             cost={calculateCost(lunch, lunchPeople)}
+            currency={currency}
             editing={editingMealType === "lunch"}
             error={lunchError}
             success={lunchSuccess}
@@ -1085,6 +1090,7 @@ const router = useRouter();
             onCancelEdit={() => cancelEdit("dinner")}
             saving={savingDinner}
             cost={calculateCost(dinner, dinnerPeople)}
+            currency={currency}
             editing={editingMealType === "dinner"}
             error={dinnerError}
             success={dinnerSuccess}
@@ -1111,6 +1117,7 @@ function MealCard({
   onCancelEdit,
   saving,
   cost,
+  currency,
   editing,
   error,
   success,
@@ -1132,6 +1139,7 @@ function MealCard({
   onCancelEdit: () => void;
   saving: boolean;
   cost: number;
+  currency: string;
   editing: boolean;
   error: string | null;
   success: string | null;
@@ -1156,7 +1164,7 @@ function MealCard({
           <div className="text-right">
             <p className="text-xs text-slate-500">Total</p>
             <p className="font-semibold text-emerald-600">
-              Rs. {cost.toFixed(2)}
+              {formatMoney(cost, currency)}
             </p>
           </div>
         )}
@@ -1381,6 +1389,7 @@ function MonthlyReport({
   onOpenMonth,
   onEdit,
   onDelete,
+  currency,
 }: {
   summary: Summary;
   months: { nepaliYear: number; nepaliMonth: number }[];
@@ -1393,6 +1402,7 @@ function MonthlyReport({
   onOpenMonth: (year: number, month: number) => void;
   onEdit: (entry: Entry) => void;
   onDelete: (entry: Entry) => void;
+  currency: string;
 }) {
   const report = selectedSummary ?? summary;
 
@@ -1514,7 +1524,7 @@ function MonthlyReport({
           </p>
 
           <p className="text-4xl font-bold">
-            Rs. {report.totalExpense.toFixed(2)}
+            {formatMoney(report.totalExpense, currency)}
           </p>
         </section>
 
@@ -1595,7 +1605,7 @@ function MonthlyReport({
 
                     <div className="flex items-center gap-4">
                       <p className="font-bold text-emerald-600">
-                        Rs. {total.toFixed(2)}
+                        {formatMoney(total, currency)}
                       </p>
 
                       <span className="text-slate-400">
@@ -1618,7 +1628,7 @@ function MonthlyReport({
 
                             <div className="text-right">
                               <p className="font-bold text-emerald-600">
-                                Rs. {entry.totalCost.toFixed(2)}
+                                {formatMoney(entry.totalCost, currency)}
                               </p>
 
                               <div className="mt-1 flex justify-end gap-3">

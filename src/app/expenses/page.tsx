@@ -52,6 +52,17 @@ function englishMonthName(year: number, monthIndex: number): string {
   return firstDay.toLocaleDateString("en-US", { month: "long" });
 }
 
+// The English year a given Nepali (year, month) actually falls in. Tied to
+// the month, not just the year, because a Nepali year starts in April — the
+// same Nepali year's earlier and later months can fall in different English
+// years, so this keeps the month and year dropdowns always consistent with
+// each other instead of pairing an English month with an unrelated Nepali
+// year number.
+function englishYear(year: number, monthIndex: number): number {
+  const firstDay = new nepaliDateConverter(year, monthIndex, 1).toJsDate();
+  return firstDay.getFullYear();
+}
+
 export default function ExpensesPage() {
   const router = useRouter();
 
@@ -292,7 +303,9 @@ export default function ExpensesPage() {
           >
             {Array.from({ length: 11 }, (_, i) => current.year - i).map((year) => (
               <option key={year} value={year}>
-                {year}
+                {data.calendarPreference === "english"
+                  ? englishYear(year, view.month)
+                  : year}
               </option>
             ))}
           </select>

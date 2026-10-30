@@ -3,7 +3,7 @@
 // front; the underlying figure they typed is stored exactly as entered.
 
 export const CURRENCIES: Record<string, { symbol: string; label: string }> = {
-  NPR: { symbol: "Rs.", label: "Nepali Rupee (Rs.)" },
+  NPR: { symbol: "NPR", label: "Nepali Rupee (NPR)" },
   USD: { symbol: "$", label: "US Dollar ($)" },
   AUD: { symbol: "A$", label: "Australian Dollar (A$)" },
   GBP: { symbol: "£", label: "British Pound (£)" },
