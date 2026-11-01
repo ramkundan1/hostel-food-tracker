@@ -34,6 +34,7 @@ type Detail = {
     dateOfBirth: string;
     age: number | null;
     joined: string;
+    currency: string;
   };
   stats: {
     points: number;
@@ -66,7 +67,7 @@ type Detail = {
   }[];
 };
 
-const rs = (value: number) => `Rs. ${value.toFixed(2)}`;
+import { formatMoney } from "@/lib/currency";
 
 const day = (iso: string | null) =>
   iso
@@ -384,8 +385,8 @@ export default function AdminPage() {
                 </Card>
 
                 <Card title="Spending">
-                  <Line label="Food (all time)" value={rs(detail.totals.food)} />
-                  <Line label="Additional purchases (all time)" value={rs(detail.totals.additional)} />
+                  <Line label="Food (all time)" value={formatMoney(detail.totals.food, "NPR")} />
+                  <Line label="Additional purchases (all time)" value={formatMoney(detail.totals.additional, detail.user.currency)} />
                   <Line label="Meals logged" value={String(detail.stats.allEntries)} />
                   <Line label="Logged for past dates (no points)" value={String(detail.stats.backdatedEntries)} />
                   <Line label="Longest streak" value={`${detail.stats.longestStreak} days`} />
@@ -497,7 +498,7 @@ export default function AdminPage() {
                           {NEPALI_MONTHS[entry.nepaliMonth]} {entry.nepaliDate} · {items(entry)}
                         </p>
                       </div>
-                      <p className="shrink-0 font-medium">{rs(entry.totalCost)}</p>
+                      <p className="shrink-0 font-medium">{formatMoney(entry.totalCost, "NPR")}</p>
                     </div>
                   ))}
                 </Card>
@@ -517,7 +518,7 @@ export default function AdminPage() {
                           {NEPALI_MONTHS[expense.nepaliMonth]} {expense.nepaliDate}
                         </p>
                       </div>
-                      <p className="shrink-0 font-medium">{rs(expense.amount)}</p>
+                      <p className="shrink-0 font-medium">{formatMoney(expense.amount, detail.user.currency)}</p>
                     </div>
                   ))}
                 </Card>

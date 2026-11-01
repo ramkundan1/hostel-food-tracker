@@ -1,18 +1,15 @@
 import { db } from "@/prisma/db";
 import { getCurrentUserId } from "@/lib/auth";
 
-// Admins are identified by a verified email address. Set ADMIN_EMAILS in
-// Vercel (comma separated) to change who they are; the owner's address is the
-// default so nothing needs configuring to get started.
-const DEFAULT_ADMIN_EMAIL = "envirmhp74@gmail.com";
-
+// Admins are identified by a verified email address, set via ADMIN_EMAILS in
+// Vercel (comma separated). There is deliberately no hardcoded fallback here
+// — this file ships in a public repo, so an admin address must never be
+// written into the source itself.
 function adminEmails(): string[] {
-  const configured = (process.env.ADMIN_EMAILS ?? "")
+  return (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
-
-  return configured.length > 0 ? configured : [DEFAULT_ADMIN_EMAIL];
 }
 
 export function isAdminEmail(email: string | null | undefined): boolean {

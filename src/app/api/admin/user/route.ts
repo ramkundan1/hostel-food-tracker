@@ -1,5 +1,6 @@
 import { db } from "@/prisma/db";
 import { getAdmin, isAdminEmail } from "@/lib/admin";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
 import { computeStats } from "@/lib/stats";
 
 function parseId(value: unknown): number | null {
@@ -51,6 +52,7 @@ export async function GET(request: Request) {
       dateOfBirth: user.dateOfBirth ?? "",
       age: user.age ?? null,
       joined: user.createdAt,
+      currency: user.currency || DEFAULT_CURRENCY,
     },
     stats: {
       points: Math.max(0, stats.points - user.pointsSpent),

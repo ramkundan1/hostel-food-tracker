@@ -6,7 +6,7 @@ import nepaliDateConverter from "nepali-date-converter";
 import { Pencil, Trash2, X } from "lucide-react";
 import Brand from "@/components/Brand";
 import PageNav from "@/components/PageNav";
-import NepaliDatePicker, {
+import {
   NEPALI_MONTHS,
   nepaliDateError,
   nepaliToAdString,
@@ -67,17 +67,17 @@ export default function ExpensesPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState(() => {
-    const t = todayNepali();
-    return { year: t.year, month: t.month };
-  });
   const [data, setData] = useState<MonthData | null>(null);
   const [includeFood, setIncludeFood] = useState(false);
 
+  // One selected date drives everything: which month's list is shown, and
+  // which day a new (or edited) purchase is logged under. There's no
+  // separate "date bought" field anymore — picking a day up here is enough.
+  const [nepaliDate, setNepaliDate] = useState<NepaliDateValue>(() => todayNepali());
+  const [englishDate, setEnglishDate] = useState(() => todayEnglishString());
+
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState<NepaliDateValue>(() => todayNepali());
-  const [englishDate, setEnglishDate] = useState(() => todayEnglishString());
   const [error, setError] = useState("");
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -86,8 +86,7 @@ export default function ExpensesPage() {
   const descriptionRef = useRef<HTMLInputElement>(null);
 
   const current = todayNepali();
-  const isCurrentMonth =
-    view.year === current.year && view.month === current.month;
+  const useEnglish = data?.calendarPreference === "english";
 
   async function load(year: number, month: number) {
     const res = await fetch(`/api/expenses?year=${year}&month=${month}`);
@@ -109,7 +108,7 @@ export default function ExpensesPage() {
       // storage can be blocked; the default is fine
     }
 
-    load(view.year, view.month);
+    load(nepaliDate.year, nepaliDate.month);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -123,17 +122,52 @@ export default function ExpensesPage() {
     }
   }
 
-  function resetDateToToday() {
-    setDate(todayNepali());
-    setEnglishDate(todayEnglishString());
+  // Changing the month or year moves which list is shown, so it reloads.
+  // The day resets to 1 so a day that doesn't exist in the new month (like
+  // the 30th moving to a 29-day month) can never linger as a stale value.
+  function chooseMonth(monthIndex: number) {
+    const safeMonth =
+      nepaliDate.year === current.year && monthIndex > current.month
+        ? current.month
+        : monthIndex;
+
+    const next = { ...nepaliDate, month: safeMonth, day: 1 };
+    setNepaliDate(next);
+    load(next.year, next.month);
   }
 
-  function chooseView(year: number, month: number) {
-    // Never let the view move past the current month.
-    const safeMonth = year === current.year && month > current.month ? current.month : month;
+  function chooseYear(year: number) {
+    const safeMonth =
+      year === current.year && nepaliDate.month > current.month
+        ? current.month
+        : nepaliDate.month;
 
-    setView({ year, month: safeMonth });
-    load(year, safeMonth);
+    const next = { ...nepaliDate, year, month: safeMonth, day: 1 };
+    setNepaliDate(next);
+    load(next.year, next.month);
+  }
+
+  // Changing just the day doesn't move the list — it only changes which day
+  // a purchase would be logged under within the month already being viewed.
+  function chooseDay(day: number) {
+    setNepaliDate((prev) => ({ ...prev, day }));
+  }
+
+  function chooseEnglishDate(value: string) {
+    if (!value) return;
+
+    setEnglishDate(value);
+
+    const bs = adStringToNepali(value);
+    setNepaliDate(bs);
+    load(bs.year, bs.month);
+  }
+
+  function resetToToday() {
+    const today = todayNepali();
+    setNepaliDate(today);
+    setEnglishDate(todayEnglishString());
+    load(today.year, today.month);
   }
 
   function startEdit(item: Item) {
@@ -141,7 +175,7 @@ export default function ExpensesPage() {
     setDescription(item.description);
     setAmount(String(item.amount));
     setEnglishDate(item.date.slice(0, 10));
-    setDate(adStringToNepali(item.date.slice(0, 10)));
+    setNepaliDate(adStringToNepali(item.date.slice(0, 10)));
     setError("");
     descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     descriptionRef.current?.focus();
@@ -151,8 +185,9 @@ export default function ExpensesPage() {
     setEditingId(null);
     setDescription("");
     setAmount("");
-    resetDateToToday();
     setError("");
+    // Deliberately leaves the selected date as-is — cancelling an edit
+    // shouldn't also navigate the page away from whatever month is open.
   }
 
   async function addItem(event: FormEvent) {
@@ -171,10 +206,8 @@ export default function ExpensesPage() {
       return;
     }
 
-    const useEnglish = data?.calendarPreference === "english";
-
     if (!useEnglish) {
-      const dateProblem = nepaliDateError(date);
+      const dateProblem = nepaliDateError(nepaliDate);
 
       if (dateProblem) {
         setError(dateProblem);
@@ -185,7 +218,7 @@ export default function ExpensesPage() {
       return;
     }
 
-    const dateToSend = useEnglish ? englishDate : nepaliToAdString(date);
+    const dateToSend = useEnglish ? englishDate : nepaliToAdString(nepaliDate);
 
     setAdding(true);
 
@@ -213,16 +246,11 @@ export default function ExpensesPage() {
     setAmount("");
     setEditingId(null);
 
-    // The month navigator stays in the Nepali calendar either way, so jump
-    // there using whichever date was actually entered.
-    const target = useEnglish ? adStringToNepali(dateToSend) : date;
-
-    setView({ year: target.year, month: target.month });
+    const target = useEnglish ? adStringToNepali(dateToSend) : nepaliDate;
     await load(target.year, target.month);
 
     // Keep the flow going for someone logging several receipts in a row.
     if (!wasEditing) {
-      resetDateToToday();
       descriptionRef.current?.focus();
     }
   }
@@ -247,7 +275,7 @@ export default function ExpensesPage() {
 
     if (editingId === item.id) cancelEdit();
 
-    await load(view.year, view.month);
+    await load(nepaliDate.year, nepaliDate.month);
   }
 
   if (loading || !data) {
@@ -261,6 +289,9 @@ export default function ExpensesPage() {
   const currency = data.currency || DEFAULT_CURRENCY;
   const isNpr = currency === "NPR";
   const total = data.additionalTotal + (includeFood ? data.foodTotal : 0);
+  const monthLabel = useEnglish
+    ? englishMonthName(nepaliDate.year, nepaliDate.month)
+    : NEPALI_MONTHS[nepaliDate.month];
 
   return (
     <main className="min-h-dvh bg-white p-4 text-slate-900 sm:p-6">
@@ -275,41 +306,87 @@ export default function ExpensesPage() {
           <PageNav />
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          <select
-            aria-label="Month"
-            value={view.month}
-            onChange={(e) => chooseView(view.year, Number(e.target.value))}
-            className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm font-medium text-slate-700">
+            {editingId ? "Editing — dated" : "Viewing, and logging new purchases for"}
+          </p>
+          <button
+            type="button"
+            onClick={resetToToday}
+            className="text-sm font-medium text-blue-600 hover:text-blue-700"
           >
-            {NEPALI_MONTHS.map((name, index) => (
-              <option
-                key={name}
-                value={index}
-                disabled={view.year === current.year && index > current.month}
-              >
-                {data.calendarPreference === "english"
-                  ? englishMonthName(view.year, index)
-                  : name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            aria-label="Year"
-            value={view.year}
-            onChange={(e) => chooseView(Number(e.target.value), view.month)}
-            className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          >
-            {Array.from({ length: 11 }, (_, i) => current.year - i).map((year) => (
-              <option key={year} value={year}>
-                {data.calendarPreference === "english"
-                  ? englishYear(year, view.month)
-                  : year}
-              </option>
-            ))}
-          </select>
+            Today
+          </button>
         </div>
+
+        {useEnglish ? (
+          <div className="mt-2">
+            <input
+              type="date"
+              aria-label="Date"
+              value={englishDate}
+              max={todayEnglishString()}
+              onChange={(e) => chooseEnglishDate(e.target.value)}
+              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+            <p className="mt-2 text-sm text-slate-500">
+              ≈ {formatNepaliDate(nepaliDate)} (BS)
+            </p>
+          </div>
+        ) : (
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            <select
+              aria-label="Month"
+              value={nepaliDate.month}
+              onChange={(e) => chooseMonth(Number(e.target.value))}
+              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              {NEPALI_MONTHS.map((name, index) => (
+                <option
+                  key={name}
+                  value={index}
+                  disabled={nepaliDate.year === current.year && index > current.month}
+                >
+                  {name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              aria-label="Year"
+              value={nepaliDate.year}
+              onChange={(e) => chooseYear(Number(e.target.value))}
+              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              {Array.from({ length: 11 }, (_, i) => current.year - i).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+
+            <select
+              aria-label="Day"
+              value={nepaliDate.day}
+              onChange={(e) => chooseDay(Number(e.target.value))}
+              className="w-full min-w-0 rounded-xl border border-slate-300 bg-white p-3 text-base font-medium text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              {Array.from({ length: 32 }, (_, i) => i + 1).map((day) => (
+                <option
+                  key={day}
+                  value={day}
+                  disabled={
+                    nepaliDate.year === current.year &&
+                    nepaliDate.month === current.month &&
+                    day > current.day
+                  }
+                >
+                  {day}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div
@@ -349,12 +426,7 @@ export default function ExpensesPage() {
             </p>
           )}
 
-          <p className="mt-5 text-sm text-slate-500">
-            Total for{" "}
-            {data.calendarPreference === "english"
-              ? englishMonthName(view.year, view.month)
-              : NEPALI_MONTHS[view.month]}
-          </p>
+          <p className="mt-5 text-sm text-slate-500">Total for {monthLabel}</p>
           <p className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             {formatMoney(total, currency)}
           </p>
@@ -391,7 +463,7 @@ export default function ExpensesPage() {
               <p className="mt-1 text-sm text-slate-500">
                 {editingId
                   ? "Update the details below and save."
-                  : "Clothes, equipment, anything you bought besides your daily meals."}
+                  : `Logged for the date selected above${useEnglish ? "" : ` — ${formatNepaliDate(nepaliDate)}`}.`}
               </p>
             </div>
             {editingId && (
@@ -446,39 +518,6 @@ export default function ExpensesPage() {
               />
             </div>
 
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-700">
-                  Date bought
-                </p>
-                <button
-                  type="button"
-                  onClick={resetDateToToday}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                >
-                  Today
-                </button>
-              </div>
-              {data.calendarPreference === "english" ? (
-                <div>
-                  <input
-                    type="date"
-                    value={englishDate}
-                    max={todayEnglishString()}
-                    onChange={(e) => setEnglishDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  />
-                  {englishDate && (
-                    <p className="mt-2 text-sm text-slate-500">
-                      ≈ {formatNepaliDate(adStringToNepali(englishDate))} (BS)
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <NepaliDatePicker value={date} onChange={setDate} showAdEquivalent />
-              )}
-            </div>
-
             {error && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 {error}
@@ -499,10 +538,7 @@ export default function ExpensesPage() {
 
         <section className="mt-6">
           <h2 className="font-display text-xl font-semibold tracking-tight">
-            {data.calendarPreference === "english"
-              ? englishMonthName(view.year, view.month)
-              : NEPALI_MONTHS[view.month]}{" "}
-            purchases
+            {monthLabel} purchases
           </h2>
 
           <div className="mt-3 space-y-2">
@@ -524,9 +560,9 @@ export default function ExpensesPage() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.description}</p>
                   <p className="text-xs text-slate-400">
-                    {data.calendarPreference === "english"
+                    {useEnglish
                       ? englishDateLabel(item.date)
-                      : `${NEPALI_MONTHS[view.month]} ${item.nepaliDate}`}
+                      : `${NEPALI_MONTHS[nepaliDate.month]} ${item.nepaliDate}`}
                   </p>
                 </div>
 
