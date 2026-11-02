@@ -1,4 +1,4 @@
-# eatracker
+# e-tracker
 
 **Track every meal. Know every cost.**
 
@@ -6,11 +6,11 @@ A meal and expense tracker built for students and hostel residents in Nepal. Log
 
 **Live app:** [eatracker.vercel.app](https://eatracker.vercel.app) · [rkundan.com.np](https://rkundan.com.np)
 
-![eatracker landing page](docs/screenshot.png)
+![e-tracker landing page](docs/screenshot.png)
 
 ## Why this exists
 
-Hostel life means eating the same few meals every day and losing track of what it all adds up to. eatracker costs each meal automatically from prices you set once, so a month of food spending is a number you can see, not a guess.
+Hostel life means eating the same few meals every day and losing track of what it all adds up to. e-tracker costs each meal automatically from prices you set once, so a month of food spending is a number you can see, not a guess.
 
 ## Features
 
