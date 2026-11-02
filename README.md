@@ -6,9 +6,7 @@ A meal and expense tracker built for students and hostel residents in Nepal. Log
 
 **Live app:** [eatracker.vercel.app](https://eatracker.vercel.app) · [rkundan.com.np](https://rkundan.com.np)
 
-<!-- Screenshot: save it as docs/screenshot.png, then uncomment the line below.
-![eatracker dashboard](docs/screenshot.png)
--->
+![eatracker landing page](docs/screenshot.png)
 
 ## Why this exists
 
@@ -121,4 +119,4 @@ Website: [rkundan.com.np](https://rkundan.com.np)
 
 ## License
 
-No license has been chosen yet, so all rights are reserved for now.
+Released under the [MIT License](LICENSE).
